@@ -1,6 +1,11 @@
 # memory-bench
 
-A two-track benchmark for agent memory systems.
+A two-track benchmark for agent memory systems, in Spanish and English.
+
+Most memory benchmarks collapse the two tracks. A system can surface the
+right document and still answer badly, or answer well from the wrong source
+and score as correct. Separating them makes it possible to say which half is
+failing.
 
 **Track R — source discovery.** Which conversation a system finds for a
 question. This is not memory quality: a system can return the right
@@ -54,3 +59,7 @@ reported as saturated rather than as a tie.
 - `--force`: overwrite an existing run directory. Without it, a run refuses to
   touch a directory that already holds a `manifest.json`, so a frozen result is
   never silently replaced.
+
+## Licence
+
+MIT.
