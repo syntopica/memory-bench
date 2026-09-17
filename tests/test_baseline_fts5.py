@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from membench.adapters.baseline_fts5 import BaselineFts5Adapter
+from membench.adapters.baseline_fts5_adapter import BaselineFts5Adapter
 from membench.conversation import Conversation
 from membench.message import Message
 
