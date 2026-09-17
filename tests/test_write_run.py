@@ -3,6 +3,7 @@ from pathlib import Path
 
 from membench.ingest_report import IngestReport
 from membench.question_result import QuestionResult
+from membench.raw_schema_version import RAW_SCHEMA_VERSION
 from membench.write_run import write_run
 
 
@@ -46,3 +47,14 @@ def test_creates_the_directory_when_it_is_missing(tmp_path: Path):
         ingest=IngestReport(seconds=0.0, index_bytes=0, input_tokens=0, output_tokens=0),
     )
     assert (target / "raw.jsonl").exists()
+
+
+def test_every_row_carries_the_schema_version_it_was_written_under(tmp_path: Path):
+    write_run(
+        out_dir=tmp_path,
+        manifest={},
+        results=[_result()],
+        ingest=IngestReport(seconds=0.0, index_bytes=0, input_tokens=0, output_tokens=0),
+    )
+    row = json.loads((tmp_path / "raw.jsonl").read_text(encoding="utf-8").splitlines()[0])
+    assert row["schema_version"] == RAW_SCHEMA_VERSION

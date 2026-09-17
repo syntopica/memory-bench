@@ -7,6 +7,7 @@ from pathlib import Path
 
 from membench.ingest_report import IngestReport
 from membench.question_result import QuestionResult
+from membench.raw_schema_version import RAW_SCHEMA_VERSION
 
 
 def write_run(
@@ -18,7 +19,8 @@ def write_run(
     """Write `manifest.json` and `raw.jsonl` into the run directory.
 
     The raw file keeps the evidence text as returned, so a miss can be read
-    rather than guessed at.
+    rather than guessed at, and every row carries the schema version it was
+    written under, because rows outlive the run directory around them.
 
     Args:
         out_dir: Directory for this run; created if missing.
@@ -31,5 +33,8 @@ def write_run(
     (out_dir / "manifest.json").write_text(
         json.dumps(full_manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
-    lines = [json.dumps(asdict(result), ensure_ascii=False) for result in results]
+    lines = [
+        json.dumps({"schema_version": RAW_SCHEMA_VERSION, **asdict(result)}, ensure_ascii=False)
+        for result in results
+    ]
     (out_dir / "raw.jsonl").write_text("\n".join(lines) + "\n" if lines else "", encoding="utf-8")

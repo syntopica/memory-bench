@@ -2,6 +2,8 @@
 
 from pathlib import Path
 
+from membench.memory_adapter import ADAPTER_CONTRACT_VERSION
+from membench.raw_schema_version import RAW_SCHEMA_VERSION
 from membench.sha256_file import sha256_file
 
 
@@ -32,6 +34,8 @@ def build_manifest(
     return {
         "run_id": run_id,
         "track": "R: source discovery",
+        "raw_schema_version": RAW_SCHEMA_VERSION,
+        "adapter_contract_version": ADAPTER_CONTRACT_VERSION,
         "adapter": adapter_name,
         "k": k,
         "corpus": {
