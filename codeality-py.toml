@@ -1,0 +1,18 @@
+# codeality-py configuration - https://github.com/syntopica/codeality
+schema-version = 1
+source-roots = ["membench"]
+test-roots = ["tests"]
+respect-gitignore = true
+# New repository, no ratchet debt. Raise toward 90, never lower.
+coverage-threshold = 80
+
+[limits]
+max-file-lines = 150
+test-max-file-lines = 300
+
+[roles]
+data = []
+registry = []
+entrypoint = ["membench/cli.py"]
+generated = []
+namespace-init = ["membench/__init__.py"]
