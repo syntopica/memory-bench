@@ -15,6 +15,9 @@
 - Python `>=3.12`. Dependency manager is `uv`; every command runs as `uv run ...`.
 - One exported unit and one responsibility per file. Helpers, secondary types and constants go in their own file and are imported explicitly.
 - `max-file-lines = 150` for source, `300` for tests, enforced by `uv run codeality-py gate`.
+- Every task runs and reports `uv run codeality-py check` alongside pytest and
+  ruff. It is the structural gate this repository configures, and a task that
+  does not run it has not been verified.
 - Coverage threshold `80`. This is a new repository with no ratchet debt; never lower it.
 - All code, comments, identifiers, docstrings and commit messages in English.
 - Track R is labelled "source discovery" in every user-facing string. It is never called memory quality, accuracy, or recall of facts.
@@ -1006,9 +1009,9 @@ git commit -m "feat: build a safe FTS5 match expression from a question"
 ### Task 6: The dumb baseline adapter
 
 **Files:**
-- Create: `membench/adapter.py`
+- Create: `membench/memory_adapter.py`
 - Create: `membench/adapters/__init__.py`
-- Create: `membench/adapters/baseline_fts5.py`
+- Create: `membench/adapters/baseline_fts5_adapter.py`
 - Test: `tests/test_baseline_fts5.py`
 
 **Interfaces:**
@@ -1022,7 +1025,7 @@ git commit -m "feat: build a safe FTS5 match expression from a question"
 ```python
 from pathlib import Path
 
-from membench.adapters.baseline_fts5 import BaselineFts5Adapter
+from membench.adapters.baseline_fts5_adapter import BaselineFts5Adapter
 from membench.conversation import Conversation
 from membench.message import Message
 
@@ -1088,7 +1091,7 @@ Expected: FAIL, `ModuleNotFoundError: No module named 'membench.adapters'`.
 
 - [ ] **Step 3: Write the minimal implementation**
 
-`membench/adapter.py`:
+`membench/memory_adapter.py`:
 
 ```python
 """The contract every memory system under test implements."""
@@ -1127,7 +1130,7 @@ class MemoryAdapter(Protocol):
 """Adapters for the memory systems under test."""
 ```
 
-`membench/adapters/baseline_fts5.py`:
+`membench/adapters/baseline_fts5_adapter.py`:
 
 ```python
 """The floor: SQLite FTS5 over the joined conversation text."""
@@ -1233,7 +1236,7 @@ Expected: PASS, 4 tests.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add membench/adapter.py membench/adapters/ tests/test_baseline_fts5.py
+git add membench/memory_adapter.py membench/adapters/ tests/test_baseline_fts5.py
 git commit -m "feat: SQLite FTS5 baseline adapter, the floor every system must beat"
 ```
 
@@ -1381,7 +1384,7 @@ class QuestionResult:
 import time
 from collections.abc import Sequence
 
-from membench.adapter import MemoryAdapter
+from membench.memory_adapter import MemoryAdapter
 from membench.question import Question
 from membench.question_result import QuestionResult
 from membench.ranked_sources import ranked_sources
@@ -1778,7 +1781,7 @@ import argparse
 from collections.abc import Sequence
 from pathlib import Path
 
-from membench.adapters.baseline_fts5 import BaselineFts5Adapter
+from membench.adapters.baseline_fts5_adapter import BaselineFts5Adapter
 from membench.build_manifest import build_manifest
 from membench.load_corpus import load_corpus
 from membench.load_questions import load_questions
