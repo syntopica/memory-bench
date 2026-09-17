@@ -15,7 +15,9 @@ def test_evidence_carries_text_native_id_and_sources():
 
 
 def test_evidence_allows_no_provenance():
-    evidence = Evidence(text="a consolidated memory", native_id="m-1", source_ids=(), timestamp=None)
+    evidence = Evidence(
+        text="a consolidated memory", native_id="m-1", source_ids=(), timestamp=None
+    )
     assert evidence.source_ids == ()
 
 

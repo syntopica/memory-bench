@@ -1,5 +1,6 @@
-import pytest
 from dataclasses import FrozenInstanceError
+
+import pytest
 
 from membench.conversation import Conversation
 from membench.message import Message
@@ -18,6 +19,8 @@ def test_body_joins_message_contents_in_order():
 
 
 def test_conversation_is_frozen():
-    conversation = Conversation(conversation_id="c1", started_at="2026-01-05T09:00:00Z", messages=())
+    conversation = Conversation(
+        conversation_id="c1", started_at="2026-01-05T09:00:00Z", messages=()
+    )
     with pytest.raises(FrozenInstanceError):
         conversation.conversation_id = "c2"
