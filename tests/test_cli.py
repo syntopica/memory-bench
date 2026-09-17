@@ -43,3 +43,82 @@ def test_an_unknown_adapter_is_refused(tmp_path: Path):
         ]
     )
     assert exit_code == 2
+
+
+def _run(out: Path, **overrides: str) -> int:
+    args = {
+        "--adapter": "baseline_fts5",
+        "--corpus": str(FIXTURE / "corpus.jsonl"),
+        "--questions": str(FIXTURE / "questions.jsonl"),
+        "--out": str(out),
+    }
+    args.update(overrides)
+    argv = ["run"]
+    for flag, value in args.items():
+        argv.extend([flag, value])
+    return main(argv)
+
+
+def test_a_zero_k_is_refused_and_writes_nothing(tmp_path: Path):
+    out = tmp_path / "run"
+    exit_code = _run(out, **{"--k": "0"})
+    assert exit_code == 2
+    assert not out.exists()
+
+
+def test_a_negative_k_is_refused_and_writes_nothing(tmp_path: Path):
+    out = tmp_path / "run"
+    exit_code = _run(out, **{"--k": "-3"})
+    assert exit_code == 2
+    assert not out.exists()
+
+
+def test_a_missing_corpus_is_refused_and_writes_nothing(tmp_path: Path):
+    out = tmp_path / "run"
+    exit_code = _run(out, **{"--corpus": str(FIXTURE / "no-such-corpus.jsonl")})
+    assert exit_code == 2
+    assert not out.exists()
+
+
+def test_a_missing_questions_file_is_refused_and_writes_nothing(tmp_path: Path):
+    out = tmp_path / "run"
+    exit_code = _run(out, **{"--questions": str(FIXTURE / "no-such-questions.jsonl")})
+    assert exit_code == 2
+    assert not out.exists()
+
+
+def test_a_second_run_into_the_same_directory_is_refused(tmp_path: Path):
+    out = tmp_path / "run"
+    assert _run(out) == 0
+    (out / "unrelated.txt").write_text("keep me", encoding="utf-8")
+    manifest_before = (out / "manifest.json").read_text(encoding="utf-8")
+
+    exit_code = _run(out)
+
+    assert exit_code == 2
+    assert (out / "manifest.json").read_text(encoding="utf-8") == manifest_before
+    assert (out / "unrelated.txt").read_text(encoding="utf-8") == "keep me"
+
+
+def test_force_permits_overwriting_a_previous_run(tmp_path: Path):
+    out = tmp_path / "run"
+    assert _run(out) == 0
+    (out / "unrelated.txt").write_text("keep me", encoding="utf-8")
+
+    exit_code = main(
+        [
+            "run",
+            "--adapter",
+            "baseline_fts5",
+            "--corpus",
+            str(FIXTURE / "corpus.jsonl"),
+            "--questions",
+            str(FIXTURE / "questions.jsonl"),
+            "--out",
+            str(out),
+            "--force",
+        ]
+    )
+
+    assert exit_code == 0
+    assert (out / "unrelated.txt").read_text(encoding="utf-8") == "keep me"
