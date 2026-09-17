@@ -1,6 +1,8 @@
 from pathlib import Path
 
 from membench.build_manifest import build_manifest
+from membench.memory_adapter import ADAPTER_CONTRACT_VERSION
+from membench.raw_schema_version import RAW_SCHEMA_VERSION
 
 
 def test_the_manifest_pins_the_inputs(tmp_path: Path):
@@ -30,3 +32,13 @@ def test_the_manifest_records_the_track_it_scored(tmp_path: Path):
         run_id="r", adapter_name="a", corpus_path=path, questions_path=path, k=1
     )
     assert manifest["track"] == "R: source discovery"
+
+
+def test_the_manifest_records_the_versions_of_both_published_artifacts(tmp_path: Path):
+    path = tmp_path / "f.jsonl"
+    path.write_bytes(b"{}")
+    manifest = build_manifest(
+        run_id="r", adapter_name="a", corpus_path=path, questions_path=path, k=1
+    )
+    assert manifest["raw_schema_version"] == RAW_SCHEMA_VERSION
+    assert manifest["adapter_contract_version"] == ADAPTER_CONTRACT_VERSION
