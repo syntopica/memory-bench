@@ -890,7 +890,7 @@ def load_questions(path: Path) -> list[Question]:
 ```jsonl
 {"question_id": "q1", "question": "que motor de busqueda lexica usamos para el indice", "answer_conversation_id": "c1", "strata": ["es", "conversation", "overlap", "old"]}
 {"question_id": "q2", "question": "why did the deploy pipeline fail in February", "answer_conversation_id": "c2", "strata": ["en", "conversation", "overlap", "old"]}
-{"question_id": "q3", "question": "en que modo esta la base de datos ahora mismo", "answer_conversation_id": "c5", "strata": ["es", "conversation", "no-overlap", "recent", "temporal-contradiction"]}
+{"question_id": "q3", "question": "en que configuracion quedo finalmente la base de datos", "answer_conversation_id": "c5", "strata": ["es", "conversation", "no-overlap", "recent", "temporal-contradiction"]}
 {"question_id": "q4", "question": "when should review requests go to Marta", "answer_conversation_id": "c4", "strata": ["en", "conversation", "overlap", "old"]}
 {"question_id": "q5", "question": "por que se dejo de usar WAL", "answer_conversation_id": "c5", "strata": ["es", "conversation", "no-overlap", "recent"]}
 {"question_id": "q6", "question": "what fixed the nightly export crashes", "answer_conversation_id": "c6", "strata": ["en", "conversation", "overlap", "recent"]}
@@ -1900,8 +1900,8 @@ for metric in ('recall_at_1', 'recall_at_5', 'recall_at_10', 'reciprocal_rank'):
 "
 ```
 
-Note for the implementer: question `q3` ("en que modo esta la base de datos
-ahora mismo") is expected to MISS. It shares no informative word with `c5`, and
+Note for the implementer: question `q3` ("en que configuracion quedo
+finalmente la base de datos") is expected to MISS. It shares no informative word with `c5`, and
 the baseline is lexical. That miss is the point of the fixture, not a bug — do
 not tune the fixture until it passes.
 
