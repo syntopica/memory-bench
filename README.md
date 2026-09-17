@@ -1,18 +1,29 @@
 # memory-bench
 
-A two-track benchmark for agent memory systems: **source discovery** kept apart
-from **answer sufficiency**, in Spanish and English.
+A two-track benchmark for agent memory systems.
 
-Most memory benchmarks collapse the two. A system can surface the right
-document and still answer badly, or answer well from the wrong source and score
-as correct. Separating the tracks makes it possible to say which half is
-failing.
+**Track R — source discovery.** Which conversation a system finds for a
+question. This is not memory quality: a system can return the right
+conversation and the superseded version of the fact.
 
-## Status
+**Track A — answer sufficiency.** Whether the evidence a system returns, under
+a token budget identical for every system, lets one fixed reader answer the
+question. Implemented in a later plan.
 
-Design only. `docs/` holds the design and the first implementation plan; there
-is no harness yet. Read it as a specification, not as a tool you can run.
+What no published benchmark does today, and what this one is for: a non-English
+corpus, the two tracks kept apart, and operability scored with evidence.
 
-## Licence
+Design: `docs/superpowers/specs/2026-09-17-memory-bench-design.md`.
 
-MIT.
+## Run the baseline over the fixture corpus
+
+```bash
+uv run membench run \
+  --adapter baseline_fts5 \
+  --corpus corpora/fixture/corpus.jsonl \
+  --questions corpora/fixture/questions.jsonl \
+  --out results/fixture-baseline
+```
+
+The floor is the point: SQLite FTS5 with no model, no embedding and no
+extraction. Every sophisticated system is measured by how far above it lands.
