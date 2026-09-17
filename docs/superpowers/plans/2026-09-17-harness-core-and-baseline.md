@@ -1904,9 +1904,14 @@ for metric in ('recall_at_1', 'recall_at_5', 'recall_at_10', 'reciprocal_rank'):
 ```
 
 Note for the implementer: question `q3` ("en que configuracion quedo
-finalmente la base de datos") is expected to MISS. It shares no informative word with `c5`, and
-the baseline is lexical. That miss is the point of the fixture, not a bug — do
-not tune the fixture until it passes.
+finalmente la base de datos") is expected to miss AT RECALL@1. It shares no
+informative word with `c5`, and the baseline is lexical, so it should not rank
+first. It will still appear within the top few, because `fts5_query` ORs every
+token including stopwords and six conversations is a small enough corpus that
+almost everything matches something. That is why recall@5 and recall@10
+saturate here and mean nothing on this fixture: `k` must be far smaller than the
+corpus before recall@k discriminates anything. Do not tune the fixture, and do
+not add stopword filtering to make the number look better.
 
 - [ ] **Step 6: Commit**
 

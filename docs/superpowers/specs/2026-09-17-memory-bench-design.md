@@ -85,6 +85,13 @@ MRR against the labelled answer conversation.
   "source discovery" and never calls it memory quality.**
 - No nDCG@10. With one binary relevant conversation per question it adds nothing
   over MRR.
+- **recall@k only discriminates while `k` is far smaller than the corpus.**
+  Measured on the six-conversation fixture: recall@5 and recall@10 were 1.000
+  for every system that matched anything at all, because a lexical query ORs its
+  tokens and six documents is not enough to separate them. Any corpus this
+  benchmark reports recall@10 on must be large enough for the number to mean
+  something, and a saturated column is reported as saturated rather than as a
+  tie.
 
 ### Track A — answer sufficiency
 
