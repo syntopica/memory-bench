@@ -7,7 +7,7 @@ from membench.memory_adapter import MemoryAdapter
 from membench.question import Question
 from membench.question_result import QuestionResult
 from membench.ranked_sources import ranked_sources
-from membench.recall_at_k import recall_at_k
+from membench.recall_at_depth import recall_at_depth
 from membench.reciprocal_rank import reciprocal_rank
 
 
@@ -42,9 +42,10 @@ def run_track_r(
                 question_id=question.question_id,
                 strata=question.strata,
                 ranked_sources=tuple(sources),
-                recall_at_1=recall_at_k(sources, answer, 1),
-                recall_at_5=recall_at_k(sources, answer, 5),
-                recall_at_10=recall_at_k(sources, answer, 10),
+                depth=k,
+                recall_at_1=recall_at_depth(sources, answer, 1, k),
+                recall_at_5=recall_at_depth(sources, answer, 5, k),
+                recall_at_10=recall_at_depth(sources, answer, 10, k),
                 reciprocal_rank=reciprocal_rank(sources, answer),
                 seconds=seconds,
                 evidence_texts=tuple(hit.text for hit in evidence),
