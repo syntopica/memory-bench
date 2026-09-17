@@ -28,11 +28,11 @@ def test_writes_the_manifest_and_one_line_per_question(tmp_path: Path):
         out_dir=tmp_path,
         manifest={"run_id": "r"},
         results=[_result()],
-        ingest=IngestReport(seconds=1.0, index_bytes=10, input_tokens=0, output_tokens=0),
+        ingest=IngestReport(seconds=1.0, persisted_bytes=10, input_tokens=0, output_tokens=0),
     )
     manifest = json.loads((tmp_path / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["run_id"] == "r"
-    assert manifest["ingest"]["index_bytes"] == 10
+    assert manifest["ingest"]["persisted_bytes"] == 10
     lines = (tmp_path / "raw.jsonl").read_text(encoding="utf-8").strip().splitlines()
     assert json.loads(lines[0])["question_id"] == "q1"
     assert json.loads(lines[0])["evidence_texts"] == ["body"]
@@ -44,7 +44,7 @@ def test_creates_the_directory_when_it_is_missing(tmp_path: Path):
         out_dir=target,
         manifest={},
         results=[],
-        ingest=IngestReport(seconds=0.0, index_bytes=0, input_tokens=0, output_tokens=0),
+        ingest=IngestReport(seconds=0.0, persisted_bytes=0, input_tokens=0, output_tokens=0),
     )
     assert (target / "raw.jsonl").exists()
 
@@ -54,7 +54,7 @@ def test_every_row_carries_the_schema_version_it_was_written_under(tmp_path: Pat
         out_dir=tmp_path,
         manifest={},
         results=[_result()],
-        ingest=IngestReport(seconds=0.0, index_bytes=0, input_tokens=0, output_tokens=0),
+        ingest=IngestReport(seconds=0.0, persisted_bytes=0, input_tokens=0, output_tokens=0),
     )
     row = json.loads((tmp_path / "raw.jsonl").read_text(encoding="utf-8").splitlines()[0])
     assert row["schema_version"] == RAW_SCHEMA_VERSION
