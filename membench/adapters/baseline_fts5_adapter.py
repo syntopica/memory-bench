@@ -29,6 +29,9 @@ class BaselineFts5Adapter:
 
     def setup(self) -> None:
         """Create an empty FTS5 table, replacing any previous index."""
+        if self._connection is not None:
+            self._connection.close()
+            self._connection = None
         self._database.unlink(missing_ok=True)
         self._connection = sqlite3.connect(self._database)
         self._connection.execute(

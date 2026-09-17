@@ -16,3 +16,8 @@ registry = []
 entrypoint = ["membench/cli.py"]
 generated = []
 namespace-init = ["membench/__init__.py"]
+
+[[overrides]]
+paths = ["membench/adapters/**"]
+disable = ["BPY006"]
+reason = "the lexical baseline is two queries whose whole job is to be legible as the floor being measured; loading them as resources hides the thing under test behind indirection"
