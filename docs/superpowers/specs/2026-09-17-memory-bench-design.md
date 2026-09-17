@@ -31,6 +31,39 @@ licence compatibility and reuse. Writing our own is the fallback, not the plan.
 **We do not write a dataset that already exists** for the English track. LoCoMo
 and LongMemEval_s are taken as given.
 
+## The standard claim, and what it obliges
+
+The goal is a superset: everything the existing benchmarks measure, plus the
+four things none of them measures. A benchmark that only adds is a private
+comparison; a benchmark that also covers is a candidate standard.
+
+| competency | who measures it today | how it lands here |
+| --- | --- | --- |
+| Accurate retrieval | MemoryAgentBench, LoCoMo, LongMemEval | Track R, plus Track A on the same questions |
+| Conflict resolution | MemoryAgentBench | the temporal-contradiction class of corpus A, with statement time and effective time separated |
+| Long-range understanding | MemoryAgentBench, LongMemEval | corpus A spans 9 months; questions requiring several conversations are labelled with every answering conversation |
+| Test-time learning | MemoryAgentBench | adopted in phase 2 as a competency, not reinvented: the corpus supports it, the harness does not score it yet |
+| Multi-session continuity | LoCoMo, agent-memory-benchmarks | corpus A is multi-session by construction |
+| Latency and cost | agent-memory-benchmarks | measured at the harness boundary, with attempts and failures separated from successes |
+| **Non-English retrieval** | **nobody** | corpus A is Spanish and English; `es` and `en` are first-class strata |
+| **Source discovery separated from answer sufficiency** | **nobody** | Tracks R and A, never merged into one number |
+| **Operability with evidence** | **nobody** | the capability matrix: rebuild, index loss, offline, upgrade, egress |
+| **Technical-work corpus** | **nobody** | decisions, reversals, incidents and versions, not companion chat |
+
+Four obligations follow from claiming this, and they are requirements, not
+aspirations:
+
+1. **The adapter contract is published and versioned.** A standard other people
+   can run needs a stable `MemoryAdapter` and a stable result schema. Breaking
+   either is a major version.
+2. **Every result carries its manifest**, so a third party can tell an exact
+   report recomputation from a fresh inference run.
+3. **The corpus and its labels are published** with the harness. A benchmark
+   whose data is private is a blog post.
+4. **Where an existing benchmark already measures a competency, we adopt its
+   dataset rather than writing a rival one.** LoCoMo and LongMemEval_s are taken
+   as given; MemoryAgentBench's adapters are reused if the licence allows.
+
 ## What this benchmark measures, in two tracks that are never merged
 
 The single most expensive mistake available here is scoring a retrieval-over-an-
