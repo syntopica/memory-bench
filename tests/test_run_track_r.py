@@ -102,3 +102,30 @@ def test_the_default_depth_is_ten_and_scores_every_column():
     assert result.recall_at_1 == 1.0
     assert result.recall_at_5 == 1.0
     assert result.recall_at_10 == 1.0
+
+
+def _no_provenance() -> Evidence:
+    return Evidence(text="a memory I wrote myself", native_id="m1", source_ids=(), timestamp=None)
+
+
+def test_a_system_that_returned_nothing_is_a_scored_miss():
+    result = run_track_r(_StubAdapter([]), [_question()])[0]
+    assert result.applicability == "scored"
+    assert result.recall_at_1 == 0.0
+    assert result.reciprocal_rank == 0.0
+
+
+def test_a_system_with_provenance_is_scored():
+    result = run_track_r(_StubAdapter([_evidence("c5")]), [_question()])[0]
+    assert result.applicability == "scored"
+    assert result.recall_at_1 == 1.0
+
+
+def test_a_system_without_provenance_is_not_applicable_rather_than_wrong():
+    result = run_track_r(_StubAdapter([_no_provenance()]), [_question()])[0]
+    assert result.applicability == "not_applicable"
+    assert result.recall_at_1 is None
+    assert result.recall_at_5 is None
+    assert result.recall_at_10 is None
+    assert result.reciprocal_rank is None
+    assert result.evidence_texts == ("a memory I wrote myself",)

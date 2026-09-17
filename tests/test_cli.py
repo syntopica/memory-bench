@@ -132,3 +132,16 @@ def test_a_shallow_k_publishes_no_number_under_a_deeper_name(tmp_path: Path):
     assert all(row["recall_at_5"] is None for row in rows)
     assert all(row["recall_at_10"] is None for row in rows)
     assert all(isinstance(row["recall_at_1"], float) for row in rows)
+
+
+def test_the_run_reports_its_means_and_what_it_excluded(tmp_path: Path, capsys):
+    assert _run(tmp_path / "run") == 0
+    printed = capsys.readouterr().out
+    assert "recall_at_1@k=10:" in printed
+    assert "0 excluded as not applicable to Track R" in printed
+
+
+def test_a_metric_the_run_never_observed_is_reported_as_unavailable(tmp_path: Path, capsys):
+    assert _run(tmp_path / "run", **{"--k": "2"}) == 0
+    printed = capsys.readouterr().out
+    assert "recall_at_10@k=2: n/a" in printed

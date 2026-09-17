@@ -11,6 +11,10 @@ class QuestionResult:
         question_id: Which question this is.
         strata: The question's tags, for descriptive breakdowns only.
         ranked_sources: Conversation ids the system returned, best first.
+        applicability: `"scored"`, or `"not_applicable"` when the system
+            returned evidence with no source conversation at all. Every metric
+            below is None in that case: such a system is unscorable on this
+            track, which is not the same as having searched and failed.
         depth: The `k` this run requested and observed. Every metric below is
             measured at that depth and means nothing without it.
         recall_at_1: 1.0 when the answer conversation ranked first.
@@ -29,10 +33,11 @@ class QuestionResult:
     question_id: str
     strata: tuple[str, ...]
     ranked_sources: tuple[str, ...]
+    applicability: str
     depth: int
     recall_at_1: float | None
     recall_at_5: float | None
     recall_at_10: float | None
-    reciprocal_rank: float
+    reciprocal_rank: float | None
     seconds: float
     evidence_texts: tuple[str, ...]

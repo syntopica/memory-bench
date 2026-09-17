@@ -10,6 +10,7 @@ from membench.build_manifest import build_manifest
 from membench.load_corpus import load_corpus
 from membench.load_questions import load_questions
 from membench.run_track_r import run_track_r
+from membench.track_r_means import track_r_means
 from membench.write_run import write_run
 
 _ADAPTERS = {"baseline_fts5": BaselineFts5Adapter}
@@ -81,4 +82,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     write_run(args.out, manifest, results, ingest)
     print(f"wrote {args.out}/raw.jsonl and {args.out}/manifest.json")
+
+    excluded = [result for result in results if result.applicability != "scored"]
+    for metric, mean in track_r_means(results).items():
+        print(f"{metric}@k={args.k}: {'n/a' if mean is None else format(mean, '.4f')}")
+    print(
+        f"scored {len(results) - len(excluded)} of {len(results)} questions; "
+        f"{len(excluded)} excluded as not applicable to Track R"
+    )
     return 0

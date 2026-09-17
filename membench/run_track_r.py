@@ -9,6 +9,7 @@ from membench.question_result import QuestionResult
 from membench.ranked_sources import ranked_sources
 from membench.recall_at_depth import recall_at_depth
 from membench.reciprocal_rank import reciprocal_rank
+from membench.track_r_applicability import track_r_applicability
 
 
 def run_track_r(
@@ -37,16 +38,19 @@ def run_track_r(
         seconds = time.monotonic() - started
         sources = ranked_sources(evidence)[:k]
         answer = question.answer_conversation_id
+        applicability = track_r_applicability(evidence, sources)
+        scorable = applicability == "scored"
         results.append(
             QuestionResult(
                 question_id=question.question_id,
                 strata=question.strata,
                 ranked_sources=tuple(sources),
+                applicability=applicability,
                 depth=k,
-                recall_at_1=recall_at_depth(sources, answer, 1, k),
-                recall_at_5=recall_at_depth(sources, answer, 5, k),
-                recall_at_10=recall_at_depth(sources, answer, 10, k),
-                reciprocal_rank=reciprocal_rank(sources, answer),
+                recall_at_1=recall_at_depth(sources, answer, 1, k) if scorable else None,
+                recall_at_5=recall_at_depth(sources, answer, 5, k) if scorable else None,
+                recall_at_10=recall_at_depth(sources, answer, 10, k) if scorable else None,
+                reciprocal_rank=reciprocal_rank(sources, answer) if scorable else None,
                 seconds=seconds,
                 evidence_texts=tuple(hit.text for hit in evidence),
             )
