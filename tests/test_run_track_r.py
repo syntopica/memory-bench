@@ -84,3 +84,21 @@ def test_ranked_sources_are_truncated_to_k():
     result = run_track_r(_StubAdapter([crowded]), [_question()], k=3)[0]
     assert result.ranked_sources == ("c1", "c2", "c3")
     assert result.recall_at_1 == 0.0
+
+
+def test_a_depth_beyond_k_is_null_rather_than_a_miss():
+    adapter = _StubAdapter([_evidence("c1"), _evidence("c2")])
+    result = run_track_r(adapter, [_question()], k=2)[0]
+    assert result.depth == 2
+    assert result.recall_at_1 == 0.0
+    assert result.recall_at_5 is None
+    assert result.recall_at_10 is None
+
+
+def test_the_default_depth_is_ten_and_scores_every_column():
+    adapter = _StubAdapter([_evidence("c5")])
+    result = run_track_r(adapter, [_question()])[0]
+    assert result.depth == 10
+    assert result.recall_at_1 == 1.0
+    assert result.recall_at_5 == 1.0
+    assert result.recall_at_10 == 1.0
