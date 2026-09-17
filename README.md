@@ -20,7 +20,24 @@ corpus, the two tracks kept apart, and operability scored with evidence.
 Operability scoring is not implemented either: the capability matrix and its
 evidence come with a later plan, as Track A does.
 
-Design: `docs/superpowers/specs/2026-09-17-memory-bench-design.md`.
+## What this release is
+
+Track R and a lexical baseline over a six-conversation fixture. It is not yet a
+validated comparative standard: no rival system has been measured, Track A and
+operability are unimplemented, and the scoring thresholds do not exist — the
+design requires deriving them from a baseline pilot and committing them before
+any scored run, precisely so they cannot be chosen once the results are known.
+Beating this floor establishes that a system is better than untuned lexical
+retrieval, and nothing more.
+
+`docs/superpowers/` holds the design record and the build plan that produced
+this. They are published so the reasoning behind every choice can be attacked,
+and they are historical: neither was revised as the code corrected it, and each
+carries a banner saying where it diverges. A specification with stable
+revisions for a result to cite does not exist yet.
+
+Design record: `docs/superpowers/specs/2026-09-17-memory-bench-design.md`.
+Known limitations: `TODO.md`.
 
 ## Run the baseline over the fixture corpus
 

@@ -3,6 +3,14 @@
 Date: 2026-09-17
 Status: approved to start, correcting in flight.
 
+> **This is a design record, not the specification a result cites.** It is the
+> reasoning behind the benchmark — why the two tracks are kept apart, why the
+> lexical floor is left untuned, why recall@k saturates on a small corpus — and
+> it is published so those choices can be attacked. It is not normative, it was
+> not revised as the code corrected it, and where it disagrees with the shipped
+> harness the harness is what ran. A reader-facing specification with stable
+> revisions to cite does not exist yet; `TODO.md` records that gap.
+
 ## Purpose
 
 Establish, with evidence, where Atrium is genuinely better than the well-known
