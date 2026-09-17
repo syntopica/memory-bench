@@ -3,8 +3,7 @@ from pathlib import Path
 
 from membench.ingest_report import IngestReport
 from membench.question_result import QuestionResult
-from membench.raw_schema_version import RAW_SCHEMA_VERSION
-from membench.write_run import write_run
+from membench.write_run import RAW_SCHEMA_VERSION, write_run
 
 
 def _result() -> QuestionResult:

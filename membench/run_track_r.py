@@ -9,7 +9,7 @@ from membench.question_result import QuestionResult
 from membench.ranked_sources import ranked_sources
 from membench.recall_at_depth import recall_at_depth
 from membench.reciprocal_rank import reciprocal_rank
-from membench.track_r_applicability import track_r_applicability
+from membench.scoring_applicability import scoring_applicability
 
 
 def run_track_r(
@@ -38,7 +38,7 @@ def run_track_r(
         seconds = time.monotonic() - started
         sources = ranked_sources(evidence)[:k]
         answer = question.answer_conversation_id
-        applicability = track_r_applicability(evidence, sources)
+        applicability = scoring_applicability(evidence, sources)
         scorable = applicability == "scored"
         results.append(
             QuestionResult(

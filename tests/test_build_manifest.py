@@ -3,7 +3,7 @@ from pathlib import Path
 
 from membench.build_manifest import build_manifest
 from membench.memory_adapter import ADAPTER_CONTRACT_VERSION
-from membench.raw_schema_version import RAW_SCHEMA_VERSION
+from membench.write_run import RAW_SCHEMA_VERSION
 
 
 def test_the_manifest_pins_the_inputs(tmp_path: Path):

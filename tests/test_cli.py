@@ -127,7 +127,9 @@ def test_force_permits_overwriting_a_previous_run(tmp_path: Path):
 def test_a_shallow_k_publishes_no_number_under_a_deeper_name(tmp_path: Path):
     out = tmp_path / "run"
     assert _run(out, **{"--k": "2"}) == 0
-    rows = [json.loads(line) for line in (out / "raw.jsonl").read_text(encoding="utf-8").splitlines()]
+    rows = [
+        json.loads(line) for line in (out / "raw.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
     assert all(row["depth"] == 2 for row in rows)
     assert all(row["recall_at_5"] is None for row in rows)
     assert all(row["recall_at_10"] is None for row in rows)

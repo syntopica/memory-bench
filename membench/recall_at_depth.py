@@ -5,9 +5,7 @@ from collections.abc import Sequence
 from membench.recall_at_k import recall_at_k
 
 
-def recall_at_depth(
-    ranked: Sequence[str], answer_id: str, depth: int, k: int
-) -> float | None:
+def recall_at_depth(ranked: Sequence[str], answer_id: str, depth: int, k: int) -> float | None:
     """Return recall at `depth`, or None when `depth` is deeper than the run's `k`.
 
     A system asked for `k` hits was never given the chance to rank anything at
