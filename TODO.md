@@ -6,19 +6,6 @@ judged not to block it.
 
 ## Scoring
 
-- [ ] **A hit with no source identity is dropped from the ranking instead of
-  consuming a rank slot.** `membench/ranked_sources.py` flattens the evidence
-  in rank order and keeps only the identifiers it finds, so an adapter that
-  returns two unsourced hits above the answer scores `reciprocal_rank` 1.0,
-  while one whose first two hits cite the wrong conversations scores 0.333.
-  Returning unsourced material above the answer is therefore free, and
-  slightly advantageous. No adapter in the repository can reach this path
-  today, because the lexical baseline always has provenance — but the first
-  system that consolidates memories will. Decide deliberately whether an
-  unsourced hit consumes a slot, write the decision into the spec, and test
-  it. Changing it is a scoring change, so it is a major version of the
-  `raw.jsonl` schema.
-
 - [ ] **`reciprocal_rank` is reciprocal rank at `depth`, under an unqualified
   name.** Every row carries `depth`, and the CLI labels its own output
   `reciprocal_rank@k=<k>`, so the information is not lost. But rows are

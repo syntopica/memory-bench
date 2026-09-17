@@ -1,3 +1,5 @@
+import pytest
+
 from membench.evidence import Evidence
 from membench.question import Question
 from membench.run_track_r import run_track_r
@@ -129,3 +131,34 @@ def test_a_system_without_provenance_is_not_applicable_rather_than_wrong():
     assert result.recall_at_10 is None
     assert result.reciprocal_rank is None
     assert result.evidence_texts == ("a memory I wrote myself",)
+
+
+def test_unsourced_hits_above_the_answer_cost_the_system_its_rank():
+    """The scoring decision of this task, stated as a test.
+
+    Two systems return the answer as their third piece of evidence. One cites
+    wrong conversations first, the other cites nothing first. They must score
+    the same: k is a budget, and both spent two slots before the answer.
+    """
+    wrong_first = _StubAdapter(
+        [
+            Evidence(text="wrong", native_id="e1", source_ids=("c9",), timestamp=None),
+            Evidence(text="also wrong", native_id="e2", source_ids=("c8",), timestamp=None),
+            Evidence(text="the answer", native_id="e3", source_ids=("c1",), timestamp=None),
+        ]
+    )
+    unsourced_first = _StubAdapter(
+        [
+            Evidence(text="no provenance", native_id="e1", source_ids=(), timestamp=None),
+            Evidence(text="no provenance either", native_id="e2", source_ids=(), timestamp=None),
+            Evidence(text="the answer", native_id="e3", source_ids=("c1",), timestamp=None),
+        ]
+    )
+    question = Question(question_id="q1", question="?", answer_conversation_id="c1", strata=())
+
+    wrong = run_track_r(wrong_first, [question], 10)[0]
+    unsourced = run_track_r(unsourced_first, [question], 10)[0]
+
+    assert wrong.reciprocal_rank == unsourced.reciprocal_rank
+    assert unsourced.reciprocal_rank == pytest.approx(1 / 3)
+    assert unsourced.applicability == "scored"

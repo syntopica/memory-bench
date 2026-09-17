@@ -10,7 +10,9 @@ class QuestionResult:
     Attributes:
         question_id: Which question this is.
         strata: The question's tags, for descriptive breakdowns only.
-        ranked_sources: Conversation ids the system returned, best first.
+        ranked_sources: One entry per slot the system spent, best first. A
+            None entry is a slot an unsourced hit spent: the system returned
+            something there, and it carried no conversation to score.
         applicability: `"scored"`, or `"not_applicable"` when the system
             returned evidence with no source conversation at all. Every metric
             below is None in that case: such a system is unscorable on this
@@ -32,7 +34,7 @@ class QuestionResult:
 
     question_id: str
     strata: tuple[str, ...]
-    ranked_sources: tuple[str, ...]
+    ranked_sources: tuple[str | None, ...]
     applicability: str
     depth: int
     recall_at_1: float | None
