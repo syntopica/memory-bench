@@ -27,3 +27,17 @@ uv run membench run \
 
 The floor is the point: SQLite FTS5 with no model, no embedding and no
 extraction. Every sophisticated system is measured by how far above it lands.
+
+## Flags
+
+- `--adapter` (required): which system under test to run, by name.
+- `--corpus` (required): path to the corpus JSONL. Must exist.
+- `--questions` (required): path to the labelled question set JSONL. Must exist.
+- `--out` (required): directory to write the run's artifacts into.
+- `--k` (default `10`): ranking depth requested and scored. Must be at least 1;
+  a manifest with a smaller or unbounded `k` than the run it describes is the
+  one failure this benchmark cannot tolerate, so `0` or a negative value is
+  refused before anything is written.
+- `--force`: overwrite an existing run directory. Without it, a run refuses to
+  touch a directory that already holds a `manifest.json`, so a frozen result is
+  never silently replaced.
