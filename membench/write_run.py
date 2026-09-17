@@ -8,7 +8,7 @@ from pathlib import Path
 from membench.ingest_report import IngestReport
 from membench.question_result import QuestionResult
 
-RAW_SCHEMA_VERSION = "1.0"
+RAW_SCHEMA_VERSION = "2.0"
 """Version of one `raw.jsonl` row, written onto every row.
 
 Rows travel on their own: they are concatenated across runs, loaded years
@@ -16,6 +16,9 @@ apart and re-scored by tools this repository does not own, so the version sits
 on each row rather than only on the run directory around it. The major part is
 raised whenever a field changes meaning, is removed, or becomes newly
 nullable; an added field raises the minor part.
+
+2.0 publishes an unsourced hit as a null slot in ranked_sources, where 1.0
+dropped it.
 """
 
 

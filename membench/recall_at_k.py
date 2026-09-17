@@ -3,7 +3,7 @@
 from collections.abc import Sequence
 
 
-def recall_at_k(ranked: Sequence[str], answer_id: str, k: int) -> float:
+def recall_at_k(ranked: Sequence[str | None], answer_id: str, k: int) -> float:
     """Return 1.0 when the answer conversation is within the first k, else 0.0.
 
     Each question has exactly one labelled relevant conversation, so recall
@@ -11,7 +11,8 @@ def recall_at_k(ranked: Sequence[str], answer_id: str, k: int) -> float:
     this is compared against reports.
 
     Args:
-        ranked: Conversation ids in rank order, deduplicated.
+        ranked: Conversation ids in rank order, deduplicated. A None entry is
+            a slot an unsourced hit spent; it never matches.
         answer_id: The labelled answer conversation.
         k: How deep into the ranking to look.
 

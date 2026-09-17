@@ -3,11 +3,12 @@
 from collections.abc import Sequence
 
 
-def reciprocal_rank(ranked: Sequence[str], answer_id: str) -> float:
+def reciprocal_rank(ranked: Sequence[str | None], answer_id: str) -> float:
     """Return 1/rank of the answer conversation, or 0.0 when it is absent.
 
     Args:
-        ranked: Conversation ids in rank order, deduplicated.
+        ranked: Conversation ids in rank order, deduplicated. A None entry is
+            a slot an unsourced hit spent; it never matches.
         answer_id: The labelled answer conversation.
 
     Returns:
