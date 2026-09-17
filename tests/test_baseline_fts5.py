@@ -35,13 +35,13 @@ def _corpus() -> list[Conversation]:
     ]
 
 
-def test_ingest_reports_time_and_index_size(tmp_path: Path):
+def test_ingest_reports_time_and_bytes_persisted(tmp_path: Path):
     adapter = BaselineFts5Adapter(tmp_path / "baseline.db")
     adapter.setup()
     report = adapter.ingest(_corpus())
     adapter.teardown()
     assert report.seconds >= 0.0
-    assert report.index_bytes > 0
+    assert report.persisted_bytes > 0
     assert report.input_tokens == 0
     assert report.output_tokens == 0
 

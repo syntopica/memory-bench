@@ -12,12 +12,17 @@ class IngestReport:
 
     Attributes:
         seconds: Wall-clock duration of the ingestion.
-        index_bytes: Bytes of derived index the ingestion produced.
+        persisted_bytes: Total bytes the system persists after ingesting, as
+            measured on disk. This is not derived-index size: it includes any
+            copy of the corpus the system keeps, and FTS5's content table keeps
+            one verbatim. Separating derived storage from a retained copy needs
+            a boundary defined across several systems, which this phase does
+            not have.
         input_tokens: Model input tokens the ingestion consumed, zero if none.
         output_tokens: Model output tokens the ingestion consumed, zero if none.
     """
 
     seconds: float
-    index_bytes: int
+    persisted_bytes: int
     input_tokens: int
     output_tokens: int

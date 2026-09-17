@@ -22,6 +22,6 @@ def test_evidence_allows_no_provenance():
 
 
 def test_ingest_report_holds_cost_and_size():
-    report = IngestReport(seconds=1.5, index_bytes=4096, input_tokens=0, output_tokens=0)
+    report = IngestReport(seconds=1.5, persisted_bytes=4096, input_tokens=0, output_tokens=0)
     assert report.seconds == 1.5
-    assert report.index_bytes == 4096
+    assert report.persisted_bytes == 4096

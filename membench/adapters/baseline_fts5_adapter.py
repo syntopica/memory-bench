@@ -49,13 +49,15 @@ class BaselineFts5Adapter:
         )
 
     def ingest(self, corpus: Sequence[Conversation]) -> IngestReport:
-        """Index one row per conversation and report time and index size.
+        """Index one row per conversation and report time and bytes persisted.
 
         Args:
             corpus: The conversations, ingested in the order given.
 
         Returns:
-            The measured cost. Token counts are zero: this system calls no model.
+            The measured cost. The byte count is the whole SQLite file, the
+            corpus copy in FTS5's content table included. Token counts are
+            zero: this system calls no model.
         """
         connection = self._require_connection()
         started = time.monotonic()
@@ -67,7 +69,7 @@ class BaselineFts5Adapter:
         seconds = time.monotonic() - started
         return IngestReport(
             seconds=seconds,
-            index_bytes=self._database.stat().st_size,
+            persisted_bytes=self._database.stat().st_size,
             input_tokens=0,
             output_tokens=0,
         )
