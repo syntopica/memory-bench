@@ -4,6 +4,7 @@ import sqlite3
 from pathlib import Path
 
 from membench.memory_adapter import ADAPTER_CONTRACT_VERSION
+from membench.portable_path import portable_path
 from membench.raw_schema_version import RAW_SCHEMA_VERSION
 from membench.sha256_file import sha256_file
 
@@ -43,11 +44,11 @@ def build_manifest(
         "adapter": adapter_name,
         "k": k,
         "corpus": {
-            "path": str(corpus_path),
+            "path": portable_path(corpus_path),
             "sha256": sha256_file(corpus_path),
         },
         "questions": {
-            "path": str(questions_path),
+            "path": portable_path(questions_path),
             "sha256": sha256_file(questions_path),
         },
     }

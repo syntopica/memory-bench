@@ -21,7 +21,7 @@ def test_the_manifest_pins_the_inputs(tmp_path: Path):
     assert manifest["run_id"] == "2026-09-17-abc"
     assert manifest["adapter"] == "baseline_fts5"
     assert manifest["k"] == 10
-    assert manifest["corpus"]["path"] == str(corpus)
+    assert manifest["corpus"]["path"] == "corpus.jsonl"
     assert len(manifest["corpus"]["sha256"]) == 64
     assert len(manifest["questions"]["sha256"]) == 64
 
