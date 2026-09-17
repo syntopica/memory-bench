@@ -72,3 +72,15 @@ def test_strata_and_timing_travel_with_the_result():
     result = run_track_r(adapter, [_question()])[0]
     assert result.strata == ("es", "no-overlap")
     assert result.seconds >= 0.0
+
+
+def test_ranked_sources_are_truncated_to_k():
+    crowded = Evidence(
+        text="one hit citing many conversations",
+        native_id="e1",
+        source_ids=("c1", "c2", "c3", "c4", "c5"),
+        timestamp=None,
+    )
+    result = run_track_r(_StubAdapter([crowded]), [_question()], k=3)[0]
+    assert result.ranked_sources == ("c1", "c2", "c3")
+    assert result.recall_at_1 == 0.0

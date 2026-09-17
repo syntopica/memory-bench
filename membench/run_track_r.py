@@ -23,7 +23,9 @@ def run_track_r(
     Args:
         adapter: The system under test, already set up and ingested.
         questions: The labelled question set.
-        k: How deep the ranking is requested and scored.
+        k: How deep the ranking is requested and scored. It bounds the
+            ranked conversations too, so one hit citing many conversations
+            buys no more depth than k separate hits.
 
     Returns:
         One result per question, in question order.
@@ -33,7 +35,7 @@ def run_track_r(
         started = time.monotonic()
         evidence = adapter.query(question.question, k)
         seconds = time.monotonic() - started
-        sources = ranked_sources(evidence)
+        sources = ranked_sources(evidence)[:k]
         answer = question.answer_conversation_id
         results.append(
             QuestionResult(
