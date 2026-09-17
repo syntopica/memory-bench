@@ -28,14 +28,24 @@ class BaselineFts5Adapter:
         self._connection: sqlite3.Connection | None = None
 
     def setup(self) -> None:
-        """Create an empty FTS5 table, replacing any previous index."""
+        """Create an empty FTS5 table, replacing any previous index.
+
+        The tokenizer is pinned rather than inherited. FTS5's default
+        `remove_diacritics` setting varies with the SQLite build, and this
+        benchmark's headline claim is a non-English corpus: an unpinned
+        tokenizer would move `configuración` against `configuracion` between
+        two machines with nothing in the artifact to show it. The manifest
+        records the SQLite version alongside.
+        """
         if self._connection is not None:
             self._connection.close()
             self._connection = None
         self._database.unlink(missing_ok=True)
         self._connection = sqlite3.connect(self._database)
         self._connection.execute(
-            "CREATE VIRTUAL TABLE conversations USING fts5(conversation_id UNINDEXED, body)"
+            "CREATE VIRTUAL TABLE conversations USING fts5("
+            "conversation_id UNINDEXED, body, "
+            "tokenize='unicode61 remove_diacritics 2')"
         )
 
     def ingest(self, corpus: Sequence[Conversation]) -> IngestReport:

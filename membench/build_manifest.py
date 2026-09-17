@@ -1,5 +1,6 @@
 """Describe a run precisely enough to recompute its report."""
 
+import sqlite3
 from pathlib import Path
 
 from membench.memory_adapter import ADAPTER_CONTRACT_VERSION
@@ -17,7 +18,9 @@ def build_manifest(
     """Return the manifest that pins a run's inputs.
 
     A command line does not say which bytes were read, so the corpus and the
-    question set are hashed. Reproducing the report from frozen artifacts and
+    question set are hashed. The SQLite version is recorded because the
+    baseline's tokenizer behaviour is a property of the build that ran it, and
+    a lexical floor that moved between two machines must be visible here. Reproducing the report from frozen artifacts and
     rerunning inference are different operations, and this is what makes the
     first one checkable.
 
@@ -36,6 +39,7 @@ def build_manifest(
         "track": "R: source discovery",
         "raw_schema_version": RAW_SCHEMA_VERSION,
         "adapter_contract_version": ADAPTER_CONTRACT_VERSION,
+        "sqlite_version": sqlite3.sqlite_version,
         "adapter": adapter_name,
         "k": k,
         "corpus": {
