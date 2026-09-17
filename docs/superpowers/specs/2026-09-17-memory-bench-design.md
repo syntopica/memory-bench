@@ -223,6 +223,50 @@ explicitly LLM-judged table outside the judge-free headline. Published scores
 from mem0 and Zep are contextual references, not comparisons: a different
 reader, prompt, retrieval budget or product version makes them incomparable.
 
+**Correction, 2026-09-18, after the licence review below.** This section
+understated what Corpus B can do. Each LongMemEval instance carries
+`answer_session_ids`, and turn-level `has_answer` flags, so it labels *which
+session holds the answer* — which is Track R's question, not Track A's. It is
+therefore usable for source discovery as well, with no LLM judge in the path.
+That is worth more than the judged table, because it is a judge-free
+comparison against a corpus this project did not write. Both are reported;
+they stay separate.
+
+### Licences, verified 2026-09-18
+
+Adopting existing datasets rather than writing rival implementations is one of
+this benchmark's four standard-coverage obligations, so what may actually be
+adopted was checked against each project's own LICENSE file rather than a
+summary.
+
+- **LongMemEval** — MIT, both the code (`xiaowu0162/LongMemEval`) and the
+  dataset card. Redistributable. One flow-through worth an attribution note:
+  its filler sessions are drawn from ShareGPT (Apache-2.0) and UltraChat
+  (MIT), so the session text is a derivative carrying those notices.
+- **LoCoMo** — **CC BY-NC 4.0**, verified in `LICENSE.txt` at the repository
+  root, which also holds the data. Non-commercial only. This benchmark is MIT
+  and published for anyone to run, including commercially, so LoCoMo is **not
+  adopted**: bundling it would impose a restriction on every downstream user
+  that the rest of the repository does not. Its published numbers stay
+  citable as context, like mem0's and Zep's.
+- **MemoryAgentBench** — MIT at the root, and its dataset is MIT, but its
+  `mem0/`, `letta/` and `cognee/` directories are **not adapters**. They are
+  near-complete vendored copies of each upstream package (`letta/` alone ships
+  `orm/`, `server/`, `schemas/` and `cli/`), all three Apache-2.0 upstream,
+  with no LICENSE or NOTICE inside those trees and no disclosure of the
+  vendoring in the README. So there is no adapter here to adopt: what looks
+  like one is somebody else's whole project under different terms. This
+  repository writes thin wrappers against the real published packages instead,
+  which is also the only way an adapter can state which released version it
+  measured.
+
+**The gap that justifies Corpus A.** A search for a public dataset that labels
+the source conversation for a question in Spanish, or in any language other
+than English, found none — not a marginal candidate, none. The differential
+claim of this benchmark is non-English source discovery, and there is nothing
+to adopt for it. Corpus A is not a preference for synthetic data; it is the
+only way that column exists.
+
 ## Systems, and how each is set up
 
 Phase 1: the dumb baseline, Atrium, mem0. Phase 2, against the same harness and
