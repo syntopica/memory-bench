@@ -5,7 +5,7 @@ from collections.abc import Sequence
 from membench.evidence import Evidence
 
 
-def track_r_applicability(evidence: Sequence[Evidence], sources: Sequence[str]) -> str:
+def scoring_applicability(evidence: Sequence[Evidence], sources: Sequence[str]) -> str:
     """Return `"scored"`, or `"not_applicable"` when there is no provenance to score.
 
     Three states have to stay apart in the artifact. A system that returned

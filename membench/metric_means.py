@@ -7,7 +7,7 @@ from membench.question_result import QuestionResult
 _METRICS = ("recall_at_1", "recall_at_5", "recall_at_10", "reciprocal_rank")
 
 
-def track_r_means(results: Sequence[QuestionResult]) -> dict[str, float | None]:
+def metric_means(results: Sequence[QuestionResult]) -> dict[str, float | None]:
     """Return one mean per metric, over the rows that observed it.
 
     A missing number is never averaged as a zero. A system with no provenance
@@ -24,8 +24,6 @@ def track_r_means(results: Sequence[QuestionResult]) -> dict[str, float | None]:
     scored = [result for result in results if result.applicability == "scored"]
     means: dict[str, float | None] = {}
     for metric in _METRICS:
-        observed = [
-            value for result in scored if (value := getattr(result, metric)) is not None
-        ]
+        observed = [value for result in scored if (value := getattr(result, metric)) is not None]
         means[metric] = sum(observed) / len(observed) if observed else None
     return means

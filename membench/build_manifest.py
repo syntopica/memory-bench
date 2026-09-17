@@ -5,8 +5,8 @@ from pathlib import Path
 
 from membench.memory_adapter import ADAPTER_CONTRACT_VERSION
 from membench.portable_path import portable_path
-from membench.raw_schema_version import RAW_SCHEMA_VERSION
 from membench.sha256_file import sha256_file
+from membench.write_run import RAW_SCHEMA_VERSION
 
 
 def build_manifest(

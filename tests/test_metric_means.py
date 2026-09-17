@@ -1,5 +1,5 @@
+from membench.metric_means import metric_means
 from membench.question_result import QuestionResult
-from membench.track_r_means import track_r_means
 
 
 def _result(applicability: str = "scored", **overrides) -> QuestionResult:
@@ -31,22 +31,22 @@ def _unscorable() -> QuestionResult:
 
 
 def test_it_averages_the_scored_rows():
-    means = track_r_means([_result(), _result(recall_at_1=0.0, reciprocal_rank=0.5)])
+    means = metric_means([_result(), _result(recall_at_1=0.0, reciprocal_rank=0.5)])
     assert means["recall_at_1"] == 0.5
     assert means["reciprocal_rank"] == 0.75
 
 
 def test_an_unscorable_row_is_excluded_rather_than_averaged_as_zero():
-    means = track_r_means([_result(), _unscorable()])
+    means = metric_means([_result(), _unscorable()])
     assert means["recall_at_1"] == 1.0
 
 
 def test_a_metric_no_row_observed_has_no_mean():
-    means = track_r_means([_result(depth=2, recall_at_5=None, recall_at_10=None)])
+    means = metric_means([_result(depth=2, recall_at_5=None, recall_at_10=None)])
     assert means["recall_at_1"] == 1.0
     assert means["recall_at_5"] is None
     assert means["recall_at_10"] is None
 
 
 def test_an_empty_run_has_no_means():
-    assert track_r_means([])["recall_at_1"] is None
+    assert metric_means([])["recall_at_1"] is None
