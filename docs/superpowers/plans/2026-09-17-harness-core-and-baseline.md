@@ -1,5 +1,20 @@
 # memory-bench Phase 1, Plan 1: Harness Core and the Dumb Baseline Implementation Plan
 
+> **Historical build record, dated 2026-09-17.** This plan drove the first
+> implementation and was not revised afterwards. It is published because the
+> derivation of a measurement belongs in the open, not because it describes the
+> shipped code. Known divergences:
+>
+> - It calls the storage field `index_bytes` and describes it as bytes of
+>   derived index, in ten places. The shipped field is `persisted_bytes`, and it
+>   measures the whole database including FTS5's verbatim copy of the corpus.
+>   The rename was the correction; the plan preserves the wrong claim.
+> - It predates the depth-aware scoring, the `applicability` states and the
+>   schema versions that the final review required before release.
+>
+> `TODO.md` carries the open limitations. The design record is
+> `docs/superpowers/specs/2026-09-17-memory-bench-design.md`.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** A runnable Track R harness that scores a memory system's source discovery over a corpus, proven end to end against a SQLite FTS5 baseline, with no VM, no gateway and no model call anywhere in the test path.
