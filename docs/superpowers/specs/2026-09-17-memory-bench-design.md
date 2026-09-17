@@ -221,8 +221,10 @@ Phase 1: the dumb baseline, Atrium, mem0. Phase 2, against the same harness and
 only after phase 1 passes its gates: Zep/Graphiti, Letta, cognee, supermemory,
 mempalace.
 
-**Dumb baseline.** SQLite FTS5 plus grep over the same corpus. Without it no
-number means anything: it bounds how much any sophisticated system actually adds.
+**Dumb baseline.** SQLite FTS5 over the same corpus, with a pinned
+`unicode61 remove_diacritics 2` tokenizer and no model, embedding or
+extraction. Without it no number means anything: it bounds how much any
+sophisticated system actually adds.
 
 **Atrium.** The naive setup evaluates Atrium switched off: only `note` and
 `synthesis` roles are embedded (`atrium/embed/semantic_roles.py:8`), so ingesting
