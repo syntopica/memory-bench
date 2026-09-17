@@ -21,6 +21,17 @@ def _corpus() -> list[Conversation]:
                 Message(role="user", content="revertimos WAL", timestamp="2026-06-14T16:00:00Z"),
             ),
         ),
+        Conversation(
+            conversation_id="c9",
+            started_at="2026-07-01T10:00:00Z",
+            messages=(
+                Message(
+                    role="user",
+                    content="cambiamos la configuración del índice",
+                    timestamp="2026-07-01T10:00:00Z",
+                ),
+            ),
+        ),
     ]
 
 
@@ -70,3 +81,21 @@ def test_a_question_containing_fts5_operators_does_not_raise(tmp_path: Path):
     hits = adapter.query("AND OR NOT NEAR revertimos", 10)
     adapter.teardown()
     assert hits[0].source_ids == ("c5",)
+
+
+def test_an_unaccented_query_matches_an_accented_document(tmp_path: Path):
+    adapter = BaselineFts5Adapter(tmp_path / "baseline.db")
+    adapter.setup()
+    adapter.ingest(_corpus())
+    hits = adapter.query("configuracion", 10)
+    adapter.teardown()
+    assert [hit.source_ids for hit in hits] == [("c9",)]
+
+
+def test_an_accented_query_matches_an_unaccented_document(tmp_path: Path):
+    adapter = BaselineFts5Adapter(tmp_path / "baseline.db")
+    adapter.setup()
+    adapter.ingest(_corpus())
+    hits = adapter.query("revértimos", 10)
+    adapter.teardown()
+    assert [hit.source_ids for hit in hits] == [("c5",)]
