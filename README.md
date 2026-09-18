@@ -61,6 +61,30 @@ separate anything here. A corpus this benchmark reports recall@10 on has to be
 large enough for the number to mean something, and a saturated column is
 reported as saturated rather than as a tie.
 
+## The token budget, and what a token is
+
+Track A gives every system in a run the same text budget, and the budget is
+counted by `membench/count_tokens.py`: **a token is a whitespace-separated run
+of characters**. That is deliberately not a model's tokenizer. A budget has to
+mean the same thing for every system under test and for a reader checking the
+result years later, and no model's tokenizer is stable across versions; what
+this definition buys is that every system is charged identically for the same
+text.
+
+What it does not buy is fairness between writing systems, and the limit is
+stated here rather than discovered later. The counter is only meaningful for
+whitespace-delimited scripts. Spanish and English, the two this benchmark
+measures, split identically per whitespace run. An unsegmented script does
+not: a whole Chinese or Japanese sentence costs one token, so a budget that
+binds in Spanish is effectively unbounded there. A run of punctuation is
+billable while carrying no content. A corpus in an unsegmented script needs a
+different definition, and using this one would hand that system a budget
+nobody else got.
+
+Track R passes no budget at all — it scores which conversations were found,
+not how much text came back — so nothing on this page's numbers depends on it
+yet.
+
 ## The result schema
 
 Every line of `raw.jsonl` is one question's Track R result, versioned by
