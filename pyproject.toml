@@ -20,6 +20,10 @@ ignore = ["D203", "D213", "E501", "D107"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["D", "S101", "ARG", "PLR2004"]
+# The manifest's six fields are the reproduction inputs the design record
+# requires; a wrapper type for one call site would hide them rather than
+# simplify anything.
+"membench/build_manifest.py" = ["PLR0913", "PLR0917"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
