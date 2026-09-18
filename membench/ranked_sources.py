@@ -17,6 +17,17 @@ def ranked_sources(evidence: Sequence[Evidence]) -> tuple[str | None, ...]:
     keeps its better slot and is not emitted again; None is never
     deduplicated, because each unsourced hit spent its own slot.
 
+    This asymmetry is deliberate, not an inconsistency to later smooth over:
+    three hits repeating "c9" and then the answer collapse to `("c9", "c1")`
+    and score reciprocal rank 1/2, while three genuinely unsourced hits and
+    then the answer stay four slots wide, `(None, None, None, "c1")`, and
+    score 1/4. Both properties were mandated separately: deduplicating a
+    repeated real identifier so citing it five times cannot buy five slots,
+    and never deduplicating None so two unsourced hits cannot collapse into
+    the cost of one. Deduplicating None slots together would let an
+    unsourced system spend an unbounded number of hits for the price of a
+    single slot, which is the same free ride this collapsed for real ids.
+
     Args:
         evidence: The adapter's hits, already in rank order.
 
