@@ -45,7 +45,30 @@ class MemoryAdapter(Protocol):
         ...
 
     def query(self, question: str, k: int, token_budget: int | None) -> list[Evidence]:
-        """Return at most k pieces of evidence, best first.
+        """Return the evidence that answers `question`, best first.
+
+        `k` bounds the **ranked source conversations**, not the pieces of
+        evidence. Each distinct conversation id in a hit's `source_ids` spends
+        one rank slot, in the order given, deduplicated across the whole
+        ranking; a hit that cites nothing spends one slot too; and everything
+        past the k-th slot is discarded before scoring. So attaching N
+        conversations to one memory costs N of the k, and returning fewer
+        hits than k does not mean the ranking fit.
+
+        For a system that consolidates memories this is the rule that matters:
+        cite the conversations that actually support the memory, best first. A
+        shotgun citation buys nothing - a repeated id is deduplicated to its
+        best slot - and it can push the conversation that really answers the
+        question out of the budget entirely. Two honest hits can overflow a
+        `k` of three if the first names three conversations.
+
+        Source ids are matched **verbatim** against the corpus
+        `conversation_id`. Exactly one leading `synthesis/` is forgiven, for
+        systems that namespace their derived records; nothing else is
+        normalised - not case, not surrounding whitespace, not any other
+        namespace or prefix. An id that does not equal a corpus
+        `conversation_id` after that one removal simply never matches, and the
+        system is scored the miss.
 
         `token_budget` is the harness's `count_tokens` applied to the returned
         texts, and it is identical for every system in a run: an adapter
