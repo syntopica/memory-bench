@@ -16,7 +16,13 @@ it. The major part is raised by any change that breaks an existing adapter -
 a new method, a changed signature, a changed meaning of a returned field - and
 the minor part by an addition an existing adapter can ignore.
 
-2.0 adds the token_budget parameter to query.
+2.0 adds the token_budget parameter to query, and changes what an adapter is
+constructed with: 1.0 handed it `<out>/index.db`, a SQLite file it was to
+create, and 2.0 hands it `<out>/workspace`, a directory it owns. That half is
+the more dangerous one, because it breaks quietly. A 1.0 adapter's signature
+still binds, so nothing is refused: it creates its database at the directory
+path and fails somewhere else, or not at all. Read this version before
+concluding an adapter is broken.
 
 Construction is part of the contract but outside the Protocol below, because
 it is where adapters differ: an adapter is a callable that takes a workspace
