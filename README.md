@@ -76,6 +76,9 @@ reported as saturated rather than as a tie.
 - `--force`: overwrite an existing run directory. Without it, a run refuses to
   touch a directory that already holds a `manifest.json`, so a frozen result is
   never silently replaced.
+- `--adapter-options`: path to a JSON object of options forwarded to the
+  adapter's constructor. An option the adapter does not accept is refused
+  before anything is written, rather than being silently ignored.
 
 ## Licence
 

@@ -21,8 +21,15 @@ the minor part by an addition an existing adapter can ignore.
 Construction is part of the contract but outside the Protocol below, because
 it is where adapters differ: an adapter is a callable that takes a workspace
 `Path` it owns exclusively, plus keyword options recorded verbatim in the
-run's manifest, and it creates nothing outside that workspace. `build_adapter`
-is where a name is turned into one of these callables.
+run's manifest, and it creates nothing outside that workspace. The harness
+creates the workspace directory before constructing the adapter, so `__init__`
+and `setup()` may assume it exists; the harness itself never writes inside
+it - a run's frozen artifacts (`manifest.json`, `raw.jsonl`) land in the
+workspace's parent directory instead, so an adapter's own files never collide
+with them. Options must be JSON-representable: they are read from a JSON file
+and recorded verbatim in the manifest, so a value that cannot round-trip
+through JSON cannot be reproduced from that record. `build_adapter` is where a
+name is turned into one of these callables.
 """
 
 

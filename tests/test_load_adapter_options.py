@@ -20,3 +20,11 @@ def test_a_json_array_is_refused(tmp_path: Path):
     path.write_text("[1, 2]", encoding="utf-8")
     with pytest.raises(ValueError):
         load_adapter_options(path)
+
+
+def test_malformed_json_names_the_path_and_the_problem(tmp_path: Path):
+    path = tmp_path / "options.json"
+    path.write_text("{not valid json", encoding="utf-8")
+    with pytest.raises(ValueError) as excinfo:
+        load_adapter_options(path)
+    assert str(path) in str(excinfo.value)
