@@ -242,6 +242,18 @@ and, when the set holds no such question, as `abstention: n/a`, because a rate
 over nothing was not observed and `0.0000` would claim the system failed to
 decline questions it was never asked.
 
+The abstention rate is computed for every run, including a run Track R has
+found **not applicable** - a system whose evidence never named a source
+conversation anywhere. Whether a system spoke or stayed silent is observable
+without any provenance at all, so the number is honest and withholding it
+would be the dishonest choice. The consequence has to be read deliberately: a
+system that answers every answerable question with unsourced text and declines
+the unanswerable ones prints `n/a` on all seven metrics and `1.0000` here, and
+that is **not a good result**. It is a system this track cannot score, beside
+the one observation that did not need provenance. The CLI says so on the line
+itself. A high abstention rate earns nothing and lifts nothing; it is only
+meaningful next to recalls that were actually measured.
+
 The two populations are never merged, and the reason is arithmetic rather than
 taste. An unanswerable question has no conversation to find, so any number
 recorded for it is a number recorded for returning nothing. Scored as a miss it

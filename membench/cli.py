@@ -109,10 +109,27 @@ def main(argv: Sequence[str] | None = None) -> int:
     # nothing everywhere earns 0.0 on every line above and 1.0 on this one.
     rate = abstention_rate(results)
     unanswerable = len(results) - len(answerable)
+    # Said on the line itself, not only in `abstention_rate`'s docstring,
+    # because this is where the number is read. A system whose evidence never
+    # names a source scores n/a on all seven metrics above and can still
+    # decline every unanswerable question, leaving a perfect 1.0000 as the
+    # only figure on the page. Nothing was lifted - abstention is never
+    # averaged into a recall - but unqualified it reads as a result, and it is
+    # not one.
+    # Read off the rows rather than off `excluded`: a run of nothing but
+    # unanswerable questions has no answerable row to be excluded, and that is
+    # the case where the abstention rate is most alone on the page.
+    caveat = (
+        "; independent of the Track R verdict above - silence is observable without"
+        " provenance, so this is not a Track R score"
+        if any(result.applicability != "scored" for result in results)
+        else ""
+    )
     print(
         "abstention: n/a; the question set holds no unanswerable questions"
         if rate is None
         else f"abstention: {rate:.4f} over {unanswerable} unanswerable "
         + ("question" if unanswerable == 1 else "questions")
+        + caveat
     )
     return 0

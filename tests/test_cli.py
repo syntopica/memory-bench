@@ -411,3 +411,4 @@ def test_the_fixture_headline_is_exactly_what_the_readme_publishes(tmp_path: Pat
         for line in (out / "raw.jsonl").read_text(encoding="utf-8").splitlines()
     }
     assert rows["q3"]["ranked_sources"] == ["c3", "c1", "c5"]
+
