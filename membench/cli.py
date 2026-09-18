@@ -5,15 +5,15 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
-from membench.adapters.baseline_fts5_adapter import BaselineFts5Adapter
+from membench.build_adapter import ADAPTERS, build_adapter
 from membench.build_manifest import build_manifest
 from membench.load_corpus import load_corpus
+from membench.load_options_or_error import load_options_or_error
 from membench.load_questions import load_questions
 from membench.metric_means import metric_means
 from membench.run_track_r import run_track_r
+from membench.validate_run_paths import validate_run_paths
 from membench.write_run import write_run
-
-_ADAPTERS = {"baseline_fts5": BaselineFts5Adapter}
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -39,35 +39,31 @@ def main(argv: Sequence[str] | None = None) -> int:
     run.add_argument("--out", type=Path, required=True)
     run.add_argument("--k", type=int, default=10)
     run.add_argument("--force", action="store_true", help="Overwrite an existing run directory")
+    run.add_argument(
+        "--adapter-options", type=Path, default=None, help="JSON object of options for the adapter"
+    )
     args = parser.parse_args(argv)
 
-    factory = _ADAPTERS.get(args.adapter)
-    if factory is None:
-        print(f"unknown adapter: {args.adapter}; known: {', '.join(sorted(_ADAPTERS))}")
+    options, options_error = load_options_or_error(args.adapter_options)
+    if options_error is not None:
+        print(options_error, file=sys.stderr)
         return 2
 
-    if args.k < 1:
-        print(f"--k must be at least 1, got {args.k}", file=sys.stderr)
+    paths_error = validate_run_paths(args)
+    if paths_error is not None:
+        print(paths_error, file=sys.stderr)
         return 2
 
-    if not args.corpus.exists():
-        print(f"corpus not found: {args.corpus}", file=sys.stderr)
+    try:
+        adapter = build_adapter(args.adapter, args.out, options)
+    except KeyError:
+        print(f"unknown adapter: {args.adapter}; known: {', '.join(sorted(ADAPTERS))}")
         return 2
-
-    if not args.questions.exists():
-        print(f"questions not found: {args.questions}", file=sys.stderr)
-        return 2
-
-    manifest_path = args.out / "manifest.json"
-    if manifest_path.exists() and not args.force:
-        print(
-            f"refusing to overwrite an existing run: {manifest_path} (use --force)",
-            file=sys.stderr,
-        )
+    except TypeError as error:
+        print(f"rejected adapter option: {error}", file=sys.stderr)
         return 2
 
     args.out.mkdir(parents=True, exist_ok=True)
-    adapter = factory(args.out / "index.db")
     adapter.setup()
     ingest = adapter.ingest(load_corpus(args.corpus))
     results = run_track_r(adapter, load_questions(args.questions), args.k)

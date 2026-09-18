@@ -19,13 +19,14 @@ class BaselineFts5Adapter:
     sophisticated system actually adds over full-text search.
     """
 
-    def __init__(self, database: Path) -> None:
-        """Store where the index lives; open nothing yet.
+    def __init__(self, workspace: Path) -> None:
+        """Store the workspace this adapter owns; open nothing yet.
 
         Args:
-            database: Path of the SQLite file this adapter owns.
+            workspace: Directory this adapter owns exclusively. Its SQLite
+                file is placed inside it, at a location this adapter decides.
         """
-        self._database = database
+        self._database = workspace / "index.db"
         self._connection: sqlite3.Connection | None = None
 
     def setup(self) -> None:
