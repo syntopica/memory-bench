@@ -1,12 +1,12 @@
 """Construct a system under test from its registered name."""
 
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from pathlib import Path
 
 from membench.adapters.baseline_fts5_adapter import BaselineFts5Adapter
 from membench.memory_adapter import MemoryAdapter
 
-ADAPTERS: dict[str, type] = {"baseline_fts5": BaselineFts5Adapter}
+ADAPTERS: dict[str, Callable[..., MemoryAdapter]] = {"baseline_fts5": BaselineFts5Adapter}
 """Every adapter this repository can construct, by the name a run names it with."""
 
 

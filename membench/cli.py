@@ -1,6 +1,7 @@
 """Command line for running a memory system against a labelled question set."""
 
 import argparse
+import inspect
 import sys
 from collections.abc import Sequence
 from pathlib import Path
@@ -54,16 +55,22 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(paths_error, file=sys.stderr)
         return 2
 
-    try:
-        adapter = build_adapter(args.adapter, args.out, options)
-    except KeyError:
-        print(f"unknown adapter: {args.adapter}; known: {', '.join(sorted(ADAPTERS))}")
+    if args.adapter not in ADAPTERS:
+        print(
+            f"unknown adapter: {args.adapter}; known: {', '.join(sorted(ADAPTERS))}",
+            file=sys.stderr,
+        )
         return 2
+
+    workspace = args.out / "workspace"
+    try:
+        inspect.signature(ADAPTERS[args.adapter]).bind(workspace, **options)
     except TypeError as error:
         print(f"rejected adapter option: {error}", file=sys.stderr)
         return 2
 
-    args.out.mkdir(parents=True, exist_ok=True)
+    workspace.mkdir(parents=True, exist_ok=True)
+    adapter = build_adapter(args.adapter, workspace, options)
     adapter.setup()
     ingest = adapter.ingest(load_corpus(args.corpus))
     results = run_track_r(adapter, load_questions(args.questions), args.k)

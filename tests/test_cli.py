@@ -1,7 +1,11 @@
 import json
 from pathlib import Path
 
+import pytest
+
+from membench.build_adapter import ADAPTERS
 from membench.cli import main
+from membench.ingest_report import IngestReport
 
 FIXTURE = Path(__file__).resolve().parent.parent / "corpora" / "fixture"
 
@@ -26,6 +30,7 @@ def test_a_baseline_run_over_the_fixture_produces_scores(tmp_path: Path):
     assert len(lines) == 6
     recalls = [json.loads(line)["recall_at_10"] for line in lines]
     assert sum(recalls) > 0
+    assert (out / "workspace" / "index.db").exists()
 
 
 def test_an_unknown_adapter_is_refused(tmp_path: Path):
@@ -186,3 +191,77 @@ def test_an_unknown_option_exits_2_and_writes_nothing(tmp_path: Path):
     )
     assert code == 2
     assert not out.exists()
+
+
+def test_an_unknown_adapters_message_is_printed_to_stderr(tmp_path: Path, capsys):
+    """A test that only checks the exit code cannot see a message printed to
+    the wrong stream.
+    """
+    exit_code = _run(tmp_path / "run", **{"--adapter": "nope"})
+    captured = capsys.readouterr()
+    assert exit_code == 2
+    assert "unknown adapter: nope" in captured.err
+    assert captured.out == ""
+
+
+class _MisconfiguredAdapter:
+    """A stand-in for an adapter that validates its own configuration."""
+
+    def __init__(self, workspace: Path) -> None:
+        raise KeyError("gateway_url")
+
+
+def test_an_adapters_own_key_error_is_not_reported_as_an_unknown_adapter(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    monkeypatch.setitem(ADAPTERS, "misconfigured", _MisconfiguredAdapter)
+    with pytest.raises(KeyError, match="gateway_url"):
+        _run(tmp_path / "run", **{"--adapter": "misconfigured"})
+
+
+class _StrictAdapter:
+    """A stand-in for an adapter that rejects one of its own option's values."""
+
+    def __init__(self, workspace: Path, url: str = "") -> None:
+        if not url:
+            raise TypeError("url must not be empty")
+
+
+def test_an_adapters_own_type_error_is_not_reported_as_a_rejected_option(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    monkeypatch.setitem(ADAPTERS, "strict", _StrictAdapter)
+    options = tmp_path / "options.json"
+    options.write_text('{"url": ""}', encoding="utf-8")
+    with pytest.raises(TypeError, match="url must not be empty"):
+        _run(tmp_path / "run", **{"--adapter": "strict", "--adapter-options": str(options)})
+
+
+class _NoticingAdapter:
+    """A stand-in that records whether its workspace already existed."""
+
+    workspace_existed_at_construction: bool = False
+
+    def __init__(self, workspace: Path) -> None:
+        type(self).workspace_existed_at_construction = workspace.exists()
+
+    def setup(self) -> None:
+        pass
+
+    def ingest(self, corpus: object) -> IngestReport:
+        return IngestReport(seconds=0.0, persisted_bytes=0, input_tokens=0, output_tokens=0)
+
+    def query(self, question: str, k: int, token_budget: int | None) -> list:
+        return []
+
+    def teardown(self) -> None:
+        pass
+
+
+def test_the_workspace_exists_before_the_adapter_is_constructed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    monkeypatch.setitem(ADAPTERS, "noticing", _NoticingAdapter)
+    exit_code = _run(tmp_path / "run", **{"--adapter": "noticing"})
+    assert exit_code == 0
+    assert _NoticingAdapter.workspace_existed_at_construction is True
