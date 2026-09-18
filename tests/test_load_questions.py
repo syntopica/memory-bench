@@ -166,8 +166,7 @@ def test_a_non_string_singular_label_is_refused_as_the_wrong_type(tmp_path):
     """
     path = tmp_path / "q.jsonl"
     path.write_text(
-        '{"question_id": "q1", "question": "x", "answer_conversation_id": 7,'
-        ' "strata": ["en"]}\n',
+        '{"question_id": "q1", "question": "x", "answer_conversation_id": 7, "strata": ["en"]}\n',
         encoding="utf-8",
     )
     with pytest.raises(ValueError, match="question q1: answer_conversation_id must be a string"):

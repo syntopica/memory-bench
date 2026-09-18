@@ -49,7 +49,9 @@ class _UnsourcedAdapter:
         del k, token_budget
         if question.startswith("unanswerable"):
             return []
-        return [Evidence(text="a memory I wrote myself", native_id="m1", source_ids=(), timestamp=None)]
+        return [
+            Evidence(text="a memory I wrote myself", native_id="m1", source_ids=(), timestamp=None)
+        ]
 
     def teardown(self) -> None:
         pass
