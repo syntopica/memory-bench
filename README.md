@@ -74,9 +74,11 @@ around it is gone.
   marks a slot spent by evidence that carried no source conversation.
 - `applicability`: `"scored"`, or `"not_applicable"` when the system returned
   evidence with no source conversation anywhere in the full ranking, which
-  leaves every metric below `null`.
-- `depth`: The `k` this run requested and observed; every metric below is
-  measured at that depth and means nothing without it.
+  leaves the three recalls and `reciprocal_rank` `null`. `depth` and
+  `truncated` are still reported: they describe the request and the ranking,
+  not the score.
+- `depth`: The `k` this run requested and observed; the three recalls and
+  `reciprocal_rank` are measured at that depth and mean nothing without it.
 - `truncated`: `true` when the system offered more slots than `k` and the
   ranking was cut, so a reader knows a missing later source is the harness's
   choice, not the system's.
