@@ -14,9 +14,12 @@ class QuestionResult:
             None entry is a slot an unsourced hit spent: the system returned
             something there, and it carried no conversation to score.
         applicability: `"scored"`, or `"not_applicable"` when the system
-            returned evidence with no source conversation at all. Every metric
-            below is None in that case: such a system is unscorable on this
-            track, which is not the same as having searched and failed.
+            produced no source conversation anywhere in the whole run. It is a
+            verdict on the run, so every row of a run carries the same value
+            and every metric below is None on all of them: such a system is
+            unscorable on this track. Within a scored run there is no
+            exclusion - a response that carried no provenance scores the
+            misses it earned, exactly as returning nothing does.
         depth: The `k` this run requested and observed. Every metric below is
             measured at that depth and means nothing without it.
         truncated: True when the system offered more slots than `k` and the
