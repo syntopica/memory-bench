@@ -26,7 +26,10 @@ def run_track_r(
         questions: The labelled question set.
         k: How deep the ranking is requested and scored. It bounds the
             ranked conversations too, so one hit citing many conversations
-            buys no more depth than k separate hits.
+            buys no more depth than k separate hits. Applicability is decided
+            on the full ranking, before this bound is applied: a system that
+            cited a real conversation past depth k still has provenance, and
+            is scored a real miss rather than excluded.
 
     Returns:
         One result per question, in question order.
@@ -36,9 +39,10 @@ def run_track_r(
         started = time.monotonic()
         evidence = adapter.query(question.question, k)
         seconds = time.monotonic() - started
-        sources = ranked_sources(evidence)[:k]
+        full_sources = ranked_sources(evidence)
+        sources = full_sources[:k]
         answer = question.answer_conversation_id
-        applicability = scoring_applicability(evidence, sources)
+        applicability = scoring_applicability(evidence, full_sources)
         scorable = applicability == "scored"
         results.append(
             QuestionResult(

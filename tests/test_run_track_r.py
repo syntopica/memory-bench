@@ -21,6 +21,20 @@ class _StubAdapter:
     def teardown(self) -> None: ...
 
 
+class _OverflowingAdapter(_StubAdapter):
+    """A stub that returns every hit it holds, ignoring k.
+
+    A real system is expected to honor the requested depth, but run_track_r's
+    own handling of provenance beyond that depth must not depend on the
+    adapter also honoring it: this isolates the internal ranking-versus-
+    scoring distinction from the adapter's own truncation behavior.
+    """
+
+    def query(self, question: str, k: int) -> list[Evidence]:
+        self.asked.append((question, k))
+        return self._hits
+
+
 def _question() -> Question:
     return Question(
         question_id="q1",
@@ -162,3 +176,29 @@ def test_unsourced_hits_above_the_answer_cost_the_system_its_rank():
     assert wrong.reciprocal_rank == unsourced.reciprocal_rank
     assert unsourced.reciprocal_rank == pytest.approx(1 / 3)
     assert unsourced.applicability == "scored"
+
+
+def test_provenance_past_the_requested_depth_still_scores_the_system():
+    """Applicability is a property of the system, not of k.
+
+    Two unsourced hits followed by a hit that does carry the answer, scored
+    at k=2: the answer sits past the requested depth, so it is a real miss,
+    not an absence of provenance. Excluding it as not_applicable would reward
+    padding a small budget with unsourced material, the same incentive this
+    task closed at k=10.
+    """
+    adapter = _OverflowingAdapter(
+        [
+            Evidence(text="no provenance", native_id="e1", source_ids=(), timestamp=None),
+            Evidence(text="no provenance either", native_id="e2", source_ids=(), timestamp=None),
+            Evidence(text="the answer", native_id="e3", source_ids=("c1",), timestamp=None),
+        ]
+    )
+    question = Question(question_id="q1", question="?", answer_conversation_id="c1", strata=())
+
+    result = run_track_r(adapter, [question], k=2)[0]
+
+    assert result.applicability == "scored"
+    assert result.recall_at_1 == 0.0
+    assert result.reciprocal_rank == 0.0
+    assert result.ranked_sources == (None, None)
