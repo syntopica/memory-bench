@@ -6,6 +6,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from membench.conversation import Conversation
+from membench.count_tokens import count_tokens
 from membench.evidence import Evidence
 from membench.fts5_query import fts5_query
 from membench.ingest_report import IngestReport
@@ -74,12 +75,15 @@ class BaselineFts5Adapter:
             output_tokens=0,
         )
 
-    def query(self, question: str, k: int) -> list[Evidence]:
+    def query(self, question: str, k: int, token_budget: int | None) -> list[Evidence]:
         """Return the best k conversations FTS5 ranks for the question.
 
         Args:
             question: The question as a person asked it.
             k: How many hits to return at most.
+            token_budget: The harness's token budget, or None for unbounded.
+                The longest prefix of the ranking that fits is returned,
+                dropping from the end.
 
         Returns:
             Evidence in rank order, each pointing at one conversation.
@@ -90,7 +94,7 @@ class BaselineFts5Adapter:
             "WHERE conversations MATCH ? ORDER BY rank LIMIT ?",
             (fts5_query(question), k),
         ).fetchall()
-        return [
+        hits = [
             Evidence(
                 text=body,
                 native_id=conversation_id,
@@ -99,6 +103,22 @@ class BaselineFts5Adapter:
             )
             for conversation_id, body in rows
         ]
+        return self._within_budget(hits, token_budget)
+
+    @staticmethod
+    def _within_budget(hits: list[Evidence], token_budget: int | None) -> list[Evidence]:
+        """Return the longest prefix of `hits` whose token count fits the budget."""
+        if token_budget is None:
+            return hits
+        kept: list[Evidence] = []
+        spent = 0
+        for hit in hits:
+            cost = count_tokens(hit.text)
+            if spent + cost > token_budget:
+                break
+            kept.append(hit)
+            spent += cost
+        return kept
 
     def teardown(self) -> None:
         """Close the connection, leaving the index file in place."""
