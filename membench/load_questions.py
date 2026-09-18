@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from membench.question import Question
+from membench.validate_strata import validate_strata
 
 
 def load_questions(path: Path) -> list[Question]:
@@ -31,7 +32,9 @@ def load_questions(path: Path) -> list[Question]:
 
     Raises:
         ValueError: If a question has no `answer_conversation_id` key at all,
-            or the key holds an empty string.
+            or the key holds an empty string; or if its strata carry a tag
+            outside the published vocabulary, are missing a required
+            dimension, or repeat one. `validate_strata` holds that check.
     """
     questions: list[Question] = []
     for line in path.read_text(encoding="utf-8").splitlines():
@@ -42,12 +45,14 @@ def load_questions(path: Path) -> list[Question]:
         if "answer_conversation_id" not in record or record["answer_conversation_id"] == "":
             msg = f"question {question_id} has no answer_conversation_id"
             raise ValueError(msg)
+        strata = tuple(record["strata"])
+        validate_strata(question_id, strata)
         questions.append(
             Question(
                 question_id=question_id,
                 question=record["question"],
                 answer_conversation_id=record["answer_conversation_id"],
-                strata=tuple(record["strata"]),
+                strata=strata,
                 as_of=record.get("as_of"),
             )
         )

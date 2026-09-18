@@ -90,3 +90,14 @@ def test_as_of_is_read_when_present_and_none_otherwise(tmp_path):
     first, second = load_questions(path)
     assert first.as_of == "2026-03-31T23:59:59Z"
     assert second.as_of is None
+
+
+def test_a_stratum_tag_outside_the_vocabulary_is_rejected(tmp_path):
+    path = tmp_path / "q.jsonl"
+    path.write_text(
+        '{"question_id": "q1", "question": "x", "answer_conversation_id": "c1",'
+        ' "strata": ["es", "conversation", "overlap", "reciente"]}\n',
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="reciente"):
+        load_questions(path)
