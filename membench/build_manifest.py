@@ -13,7 +13,6 @@ from membench.portable_path import portable_path
 from membench.sha256_file import sha256_file
 from membench.write_run import RAW_SCHEMA_VERSION
 
-
 MANIFEST_VERSION = "1.0"
 """Version of the manifest object below, written into every manifest.
 

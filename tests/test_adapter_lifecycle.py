@@ -23,8 +23,9 @@ def test_a_run_that_finishes_tears_the_adapter_down_once():
 
 def test_a_teardown_failure_on_the_success_path_is_reported():
     adapter = _Recorder(RuntimeError("could not stop the container"))
-    with pytest.raises(RuntimeError, match="could not stop the container"), adapter_lifecycle(
-        adapter
+    with (
+        pytest.raises(RuntimeError, match="could not stop the container"),
+        adapter_lifecycle(adapter),
     ):
         pass
 

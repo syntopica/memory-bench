@@ -34,8 +34,10 @@ def adapter_lifecycle(adapter: MemoryAdapter) -> Iterator[MemoryAdapter]:
     except BaseException:
         try:
             adapter.teardown()
-        except Exception as teardown_error:  # noqa: BLE001 - reported, never masking
-            print(f"teardown failed after the run already failed: {teardown_error}", file=sys.stderr)
+        except Exception as teardown_error:
+            print(
+                f"teardown failed after the run already failed: {teardown_error}", file=sys.stderr
+            )
         raise
     else:
         adapter.teardown()
