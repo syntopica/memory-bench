@@ -155,3 +155,62 @@ def test_a_plural_key_that_is_not_a_list_is_refused(tmp_path):
     )
     with pytest.raises(ValueError, match="answer_conversation_ids must be a list"):
         load_questions(path)
+
+
+def test_a_non_string_singular_label_is_refused_as_the_wrong_type(tmp_path):
+    """A number is not an empty id, and saying so sends the labeller elsewhere.
+
+    The message a corpus author reads is the whole diagnosis they get for a
+    line in a file of thousands. Reporting `7` as an *empty* id points them at
+    a blank field they will not find.
+    """
+    path = tmp_path / "q.jsonl"
+    path.write_text(
+        '{"question_id": "q1", "question": "x", "answer_conversation_id": 7,'
+        ' "strata": ["en"]}\n',
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="question q1: answer_conversation_id must be a string"):
+        load_questions(path)
+
+
+def test_a_non_string_inside_the_plural_key_is_refused_as_the_wrong_type(tmp_path):
+    path = tmp_path / "q.jsonl"
+    path.write_text(
+        '{"question_id": "q1", "question": "x", "answer_conversation_ids": ["c1", 7],'
+        ' "strata": ["en"]}\n',
+        encoding="utf-8",
+    )
+    with pytest.raises(
+        ValueError, match="question q1: every answer_conversation_ids entry must be a string"
+    ):
+        load_questions(path)
+
+
+def test_a_whitespace_only_singular_label_is_an_unlabelled_question(tmp_path):
+    """Blank is blank however it is spelled.
+
+    Ids are matched verbatim against the conversations a system returns, so a
+    label of two spaces can never match anything: it would score a miss for
+    every system regardless of what each one did, which is exactly the
+    labelling gap the emptiness check exists to refuse.
+    """
+    path = tmp_path / "q.jsonl"
+    path.write_text(
+        '{"question_id": "q1", "question": "x", "answer_conversation_id": "  ",'
+        ' "strata": ["en"]}\n',
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="question q1 has an empty answer_conversation_id"):
+        load_questions(path)
+
+
+def test_a_whitespace_only_label_inside_the_plural_key_is_refused(tmp_path):
+    path = tmp_path / "q.jsonl"
+    path.write_text(
+        '{"question_id": "q1", "question": "x", "answer_conversation_ids": ["  "],'
+        ' "strata": ["en"]}\n',
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="empty answer_conversation_id"):
+        load_questions(path)
