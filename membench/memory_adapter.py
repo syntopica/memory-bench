@@ -87,5 +87,18 @@ class MemoryAdapter(Protocol):
         ...
 
     def teardown(self) -> None:
-        """Release every resource the system holds."""
+        """Release every resource the system holds.
+
+        The harness guarantees this is called once, whether the run finished
+        or an exception ended it part-way through setup, ingest or querying:
+        an adapter that holds a server, a container or a remote index can rely
+        on getting the chance to release it. It may therefore be called on a
+        system that was never fully set up, so it has to tolerate a partial
+        state rather than assume its own invariants.
+
+        Raising from here after the run already failed does not mask that
+        failure - the harness reports the teardown error and re-raises the
+        original - but on a run that otherwise succeeded a failure here fails
+        the run.
+        """
         ...
