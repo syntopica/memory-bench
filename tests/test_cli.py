@@ -376,3 +376,38 @@ def test_a_run_over_unanswerable_questions_reports_them_outside_the_metrics(tmp_
     assert rows["u1"]["recall_all_at_1"] is None
     assert rows["a1"]["answerable"] is True
     assert rows["a1"]["abstained"] is None
+
+
+def test_the_fixture_headline_is_exactly_what_the_readme_publishes(tmp_path: Path, capsys):
+    """The numbers the README publishes for the fixture, pinned line by line.
+
+    A run pasted into a report protects nothing once the session ends. These
+    seven means and this ranking are a published result: if a change moves any
+    of them it has changed what this repository claims the baseline does, and
+    that has to be a deliberate act with a new number written down, not a test
+    that still passes because it only asked for `> 0`.
+
+    `recall_any_at_5` and `recall_any_at_10` are `1.0000` because six
+    documents saturate recall at those depths, not because the baseline is
+    perfect; they are pinned as the saturated values they are. Every fixture
+    question carries exactly one labelled conversation, so the `recall_all_*`
+    means equal the `recall_any_*` ones - and none of them is `null`, because
+    one slot is wide enough for one label.
+    """
+    out = tmp_path / "run"
+    assert _run(out) == 0
+    printed = capsys.readouterr().out
+
+    assert "recall_any_at_1@k=10: 0.6667" in printed
+    assert "recall_any_at_5@k=10: 1.0000" in printed
+    assert "recall_any_at_10@k=10: 1.0000" in printed
+    assert "recall_all_at_1@k=10: 0.6667" in printed
+    assert "recall_all_at_5@k=10: 1.0000" in printed
+    assert "recall_all_at_10@k=10: 1.0000" in printed
+    assert "reciprocal_rank@k=10: 0.8056" in printed
+
+    rows = {
+        json.loads(line)["question_id"]: json.loads(line)
+        for line in (out / "raw.jsonl").read_text(encoding="utf-8").splitlines()
+    }
+    assert rows["q3"]["ranked_sources"] == ["c3", "c1", "c5"]
