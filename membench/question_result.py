@@ -14,12 +14,15 @@ class QuestionResult:
             None entry is a slot an unsourced hit spent: the system returned
             something there, and it carried no conversation to score.
         applicability: `"scored"`, or `"not_applicable"` when the system
-            produced no source conversation anywhere in the whole run. It is a
-            verdict on the run, so every row of a run carries the same value
-            and every metric below is None on all of them: such a system is
-            unscorable on this track. Within a scored run there is no
-            exclusion - a response that carried no provenance scores the
-            misses it earned, exactly as returning nothing does.
+            returned evidence and none of it, on any question in the run,
+            carried a source conversation. It is a verdict on the run, so
+            every row of a run carries the same value and every metric below
+            is None on all of them: such a system is unscorable on this track.
+            The exemption takes evidence that named no source, not an absence
+            of evidence - a system that returned nothing anywhere is scored
+            the zeros it earned. Within a scored run there is no exclusion: a
+            response that carried no provenance scores the misses it earned,
+            exactly as returning nothing does.
         depth: The `k` this run requested and observed. Every metric below is
             measured at that depth and means nothing without it.
         truncated: True when the system offered more slots than `k` and the

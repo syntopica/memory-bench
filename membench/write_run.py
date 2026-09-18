@@ -18,7 +18,13 @@ raised whenever a field changes meaning, is removed, or becomes newly
 nullable; an added field raises the minor part.
 
 2.0 publishes an unsourced hit as a null slot in ranked_sources, where 1.0
-dropped it. 2.1 adds `truncated`, which a 2.0 consumer can ignore without
+dropped it, and changes what `applicability` means: in 1.0 it was a verdict on
+one response, excluding the questions a system answered without provenance; it
+is now a verdict on the whole run, identical on every row, and a response
+without provenance inside a scored run is a miss rather than an exclusion. A
+1.0 consumer that reads the field per row will take the new value for the old
+one and report a different number rather than failing, which is why the major
+part moved. 2.1 adds `truncated`, which a 2.0 consumer can ignore without
 misreading any field it already understood.
 """
 
