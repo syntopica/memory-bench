@@ -46,3 +46,35 @@ def test_an_empty_label_set_is_refused_rather_than_scored_a_hit():
     """
     with pytest.raises(ValueError, match="answer_ids must not be empty"):
         recall_all_at_k([], (), 10)
+
+
+def test_a_depth_too_shallow_to_hold_every_label_is_undefined():
+    """Two labels cannot both be in one slot, so `all@1` observed nothing.
+
+    Scoring 0.0 here would publish a miss no system could avoid: the number
+    would be decided by how many conversations the question is labelled with,
+    not by what came back. Averaged over a set it measures the share of
+    single-label questions in the corpus, which makes it incomparable across
+    question sets.
+    """
+    assert recall_all_at_k(["c1", "c2", "c3"], ("c1", "c3"), 1) is None
+    assert recall_all_at_k(["c1", "c2", "c3"], ("c1", "c2", "c3"), 2) is None
+
+
+def test_a_depth_exactly_wide_enough_is_observed():
+    """The boundary is `k < len(answer_ids)`, not `k <= len(answer_ids)`.
+
+    Two labels in two slots is answerable both ways, so it is scored: 1.0 when
+    both are there and 0.0 when the system spent a slot elsewhere.
+    """
+    assert recall_all_at_k(["c1", "c3"], ("c1", "c3"), 2) == 1.0
+    assert recall_all_at_k(["c1", "c2"], ("c1", "c3"), 2) == 0.0
+
+
+def test_a_repeated_label_needs_no_extra_slot():
+    """A question labelled with the same conversation twice needs one slot.
+
+    The depth guard counts distinct conversations, so a duplicated label
+    cannot push a scorable question into being reported as unobserved.
+    """
+    assert recall_all_at_k(["c1"], ("c1", "c1"), 1) == 1.0

@@ -2,8 +2,14 @@
 
 from collections.abc import Callable, Sequence
 
-Recall = Callable[[Sequence[str | None], Sequence[str], int], float]
-"""A recall function: a ranking, the labelled conversations, and a depth."""
+Recall = Callable[[Sequence[str | None], Sequence[str], int], float | None]
+"""A recall function: a ranking, the labelled conversations, and a depth.
+
+It may itself return None for a depth it cannot observe - `recall_all_at_k`
+does, for a depth narrower than the label set - and that None passes through
+here unchanged: both absences mean the same thing to a reader, a metric the
+run did not observe rather than a miss.
+"""
 
 
 def recall_at_depth(
@@ -30,7 +36,9 @@ def recall_at_depth(
         k: The depth the run actually requested and observed.
 
     Returns:
-        1.0 or 0.0 while `depth` is within `k`, otherwise None.
+        None when `depth` exceeds `k`, and otherwise whatever `recall` returns
+        at that depth - which is itself None when the recall could not observe
+        the depth it was given.
 
     Raises:
         ValueError: If k is not positive. `recall` raises on its own arguments.

@@ -24,7 +24,13 @@ def metric_means(results: Sequence[QuestionResult]) -> dict[str, float | None]:
     is not applicable to this track, and every metric is None. A partial
     exclusion cannot exist, so no row can be dropped from a denominator to lift
     a mean. A depth the run never reached still has no mean at all, rather than
-    a mean of the misses it never made.
+    a mean of the misses it never made, and a `recall_all_at_<depth>` whose
+    question carries more labels than that depth can hold is skipped for the
+    same reason: it observed nothing, so it is absent from its own
+    denominator rather than averaged in as a zero. That mean is therefore
+    taken over a different, smaller population than `recall_any_at_<depth>`,
+    which is what makes it a number about the systems rather than about how
+    many labels the question set happens to carry.
 
     Unanswerable rows are excluded too, and that exclusion is safe for a
     different reason: it is decided by the question, identically for every

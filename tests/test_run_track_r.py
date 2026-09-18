@@ -376,19 +376,26 @@ def test_any_and_all_measure_different_things_on_a_multi_label_question():
     """The reason the two recalls are published side by side and never merged.
 
     Both labelled conversations are in the ranking, but only one of them is
-    inside the top two. A system that surfaced one of the two conversations a
+    inside the top five. A system that surfaced one of the two conversations a
     multi-hop question needs has found a way in and has not found the answer;
     reporting only `any` would call that a hit, and reporting only `all` would
     call it a total failure. It is neither, and the run says so twice.
+
+    Depth 5 is where the two part company here, and not depth 1: one slot
+    cannot hold two labels, so the all-recall observes nothing there and says
+    so with None rather than scoring a miss the system could not have avoided.
     """
-    adapter = _StubAdapter([_evidence("c1"), _evidence("c2"), _evidence("c3")])
+    adapter = _StubAdapter(
+        [_evidence("c1"), *(_evidence(f"cx{n}") for n in range(4)), _evidence("c3")]
+    )
 
     result = run_track_r(adapter, [_multi_label()], k=10)[0]
 
     assert result.recall_any_at_1 == 1.0
-    assert result.recall_all_at_1 == 0.0
+    assert result.recall_all_at_1 is None
     assert result.recall_any_at_5 == 1.0
-    assert result.recall_all_at_5 == 1.0
+    assert result.recall_all_at_5 == 0.0
+    assert result.recall_all_at_10 == 1.0
 
 
 def test_reciprocal_rank_measures_the_best_ranked_label():
@@ -409,3 +416,50 @@ def test_a_single_label_question_scores_any_and_all_identically():
     assert result.recall_any_at_1 == result.recall_all_at_1 == 0.0
     assert result.recall_any_at_5 == result.recall_all_at_5 == 1.0
     assert result.recall_any_at_10 == result.recall_all_at_10 == 1.0
+
+
+def _multi_labelled(question_id: str, *answers: str) -> Question:
+    return Question(
+        question_id=question_id,
+        question=question_id,
+        answer_conversation_ids=answers,
+        strata=(),
+    )
+
+
+def test_all_recall_is_undefined_at_a_depth_that_cannot_hold_every_label():
+    """What stops `recall_all_at_1` from measuring the corpus instead of the system.
+
+    Three labels cannot fit in one slot. A perfect system that returned all
+    three in rank order and a lazy one that returned only the first are both
+    unobserved at depth 1 - nothing was learned there about whether every
+    label was found - and the published number is `None` for both. Scoring the
+    perfect system 0.0 would publish a miss it could not have avoided, and the
+    mean of such zeros is the share of single-label questions in the question
+    set: a property of the corpus, not comparable across sets, and at `--k 1`
+    the only all-recall published at all.
+
+    The discrimination the metric owes a reader happens at a depth that can
+    hold the labels, and it is asserted here too: at depth 5 the perfect
+    system scores 1.0 and the lazy one 0.0.
+    """
+    questions = [_multi_labelled("qa", "c1", "c2", "c3"), _multi_labelled("qb", "c4", "c5")]
+    perfect = _PerQuestionAdapter(
+        {
+            "qa": [_evidence("c1"), _evidence("c2"), _evidence("c3")],
+            "qb": [_evidence("c4"), _evidence("c5")],
+        }
+    )
+    lazy = _PerQuestionAdapter({"qa": [_evidence("c1")], "qb": [_evidence("c4")]})
+
+    perfect_results = run_track_r(perfect, questions)
+    lazy_results = run_track_r(lazy, questions)
+
+    assert [result.recall_all_at_1 for result in perfect_results] == [None, None]
+    assert [result.recall_all_at_1 for result in lazy_results] == [None, None]
+    assert metric_means(perfect_results)["recall_all_at_1"] is None
+    assert metric_means(lazy_results)["recall_all_at_1"] is None
+
+    assert metric_means(perfect_results)["recall_all_at_5"] == 1.0
+    assert metric_means(lazy_results)["recall_all_at_5"] == 0.0
+    assert metric_means(lazy_results)["recall_any_at_5"] == 1.0

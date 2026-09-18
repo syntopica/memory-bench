@@ -43,12 +43,18 @@ class QuestionResult:
             None when the run never looked five deep.
         recall_any_at_10: 1.0 when at least one appeared in the first ten,
             None when the run never looked ten deep.
-        recall_all_at_1: 1.0 when every labelled conversation is within the
-            first slot, which only a single-label question can be.
+        recall_all_at_1: 1.0 when the one labelled conversation ranked first,
+            and None on a question labelled with more than one - a single
+            slot cannot hold two conversations, so nothing was observed there
+            about whether every label was found. Not 0.0: that would be a
+            miss no system could avoid, and its mean would report the share
+            of single-label questions in the set.
         recall_all_at_5: 1.0 when every labelled conversation appeared in the
-            first five, None when the run never looked five deep.
+            first five, None when the run never looked five deep or the
+            question carries more than five labels.
         recall_all_at_10: 1.0 when every labelled conversation appeared in the
-            first ten, None when the run never looked ten deep.
+            first ten, None when the run never looked ten deep or the
+            question carries more than ten labels.
             `recall_any_*` and `recall_all_*` are reported side by side and
             are never averaged together: a question answered by three
             conversations, one of which was found, is a hit for the first and
