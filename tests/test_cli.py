@@ -265,3 +265,45 @@ def test_the_workspace_exists_before_the_adapter_is_constructed(
     exit_code = _run(tmp_path / "run", **{"--adapter": "noticing"})
     assert exit_code == 0
     assert _NoticingAdapter.workspace_existed_at_construction is True
+
+
+class _ProbeAdapter:
+    """A stand-in that accepts and discards whatever options it is given.
+
+    It exists only to let a test drive the real CLI end to end with options a
+    shipped adapter does not accept, so the manifest's verbatim guarantee is
+    checked across the whole path, not only at the `build_manifest` unit.
+    """
+
+    def __init__(self, workspace: Path, **options: object) -> None:
+        del workspace, options
+
+    def setup(self) -> None:
+        pass
+
+    def ingest(self, corpus: object) -> IngestReport:
+        del corpus
+        return IngestReport(seconds=0.0, persisted_bytes=0, input_tokens=0, output_tokens=0)
+
+    def query(self, question: str, k: int, token_budget: int | None) -> list:
+        del question, k, token_budget
+        return []
+
+    def teardown(self) -> None:
+        pass
+
+
+def test_the_written_manifest_carries_the_cli_s_options_unchanged(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    monkeypatch.setitem(ADAPTERS, "probe", _ProbeAdapter)
+    given_options = {"seed": 7, "gateway": {"timeout_ms": 500, "retries": None}, "label": "café"}
+    options_path = tmp_path / "options.json"
+    options_path.write_text(json.dumps(given_options), encoding="utf-8")
+    out = tmp_path / "run"
+
+    exit_code = _run(out, **{"--adapter": "probe", "--adapter-options": str(options_path)})
+
+    assert exit_code == 0
+    manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["adapter_options"] == given_options

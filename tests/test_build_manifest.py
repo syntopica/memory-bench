@@ -1,5 +1,5 @@
 import sqlite3
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 
 from membench.build_manifest import build_manifest
@@ -24,6 +24,7 @@ def test_the_manifest_pins_the_inputs(tmp_path: Path):
         questions_path=questions,
         k=10,
         adapter_options={},
+        started_at=datetime.now(UTC),
     )
     assert manifest["run_id"] == "2026-09-17-abc"
     assert manifest["adapter"] == "baseline_fts5"
@@ -43,6 +44,7 @@ def test_the_manifest_records_the_track_it_scored(tmp_path: Path):
         questions_path=path,
         k=1,
         adapter_options={},
+        started_at=datetime.now(UTC),
     )
     assert manifest["track"] == "R: source discovery"
 
@@ -57,6 +59,7 @@ def test_the_manifest_records_the_versions_of_both_published_artifacts(tmp_path:
         questions_path=path,
         k=1,
         adapter_options={},
+        started_at=datetime.now(UTC),
     )
     assert manifest["raw_schema_version"] == RAW_SCHEMA_VERSION
     assert manifest["adapter_contract_version"] == ADAPTER_CONTRACT_VERSION
@@ -72,6 +75,7 @@ def test_the_manifest_records_the_sqlite_build_that_ran(tmp_path: Path):
         questions_path=path,
         k=1,
         adapter_options={},
+        started_at=datetime.now(UTC),
     )
     assert manifest["sqlite_version"] == sqlite3.sqlite_version
 
@@ -84,6 +88,7 @@ def test_it_records_what_reproduction_needs():
         questions_path=FIXTURE_QUESTIONS,
         k=10,
         adapter_options={"seed": 7},
+        started_at=datetime.now(UTC),
     )
     assert manifest["adapter_options"] == {"seed": 7}
     assert manifest["harness"]["commit"]
@@ -101,5 +106,20 @@ def test_the_timestamp_is_utc_and_explicit():
         questions_path=FIXTURE_QUESTIONS,
         k=10,
         adapter_options={},
+        started_at=datetime.now(UTC),
     )
     assert manifest["started_at"].endswith("+00:00")
+
+
+def test_the_timestamp_is_the_caller_s_instant_not_the_serialisation_instant():
+    earlier = datetime(2026, 1, 1, tzinfo=UTC)
+    manifest = build_manifest(
+        run_id="r1",
+        adapter_name="baseline_fts5",
+        corpus_path=FIXTURE_CORPUS,
+        questions_path=FIXTURE_QUESTIONS,
+        k=10,
+        adapter_options={},
+        started_at=earlier,
+    )
+    assert manifest["started_at"] == earlier.isoformat()
