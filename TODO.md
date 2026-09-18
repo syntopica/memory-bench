@@ -39,16 +39,36 @@ judged not to block it.
   issued and the models requested and resolved are still absent, which arrive
   with the model gateway.
 
-- [ ] **A forced re-run does not clear the adapter's workspace.** `--force`
-  correctly overwrites the harness's own `manifest.json` and `raw.jsonl`, but
-  `<out>/workspace/` keeps whatever the previous run's adapter left there. Run
-  system A, then re-run system B with `--force` into the same directory, and
-  B's workspace still holds A's files. No harness artifact is wrong — the
-  adapter owns its workspace and cleans its own state, as the FTS5 baseline
-  does — but a second adapter has no way to know it inherited a first one's
-  leftovers, and "ingest into an empty system" is what the contract promises.
-  Decide whether the harness clears the workspace on `--force` or the contract
-  says an adapter must tolerate a dirty one.
+- [ ] **A re-run does not clear the adapter's workspace, and the likelier
+  path needs no `--force` at all.** The harness never clears
+  `<out>/workspace/`, so an adapter can inherit whatever a previous run's
+  adapter left there, while "ingest into an empty system" is what the contract
+  promises. No harness artifact is wrong — the adapter owns its workspace and
+  cleans its own state, as the FTS5 baseline does — but a second adapter has
+  no way to know what it inherited.
+
+  With `--force` this is deliberate and visible. Without it, it is neither:
+  `write_run` is the last thing the CLI does, so any run that fails after
+  `workspace.mkdir()` — during setup, ingest or querying — leaves
+  `<out>/workspace/` populated and `<out>/manifest.json` absent. The pre-flight
+  guard in `validate_run_paths` keys on `manifest.json`, so the next run into
+  that directory is not refused and is not warned: it walks into a crashed
+  run's leftovers with no flag typed. A crash is the likelier path to a dirty
+  workspace, not `--force`.
+
+  Decide whether the harness clears the workspace before constructing an
+  adapter, or the contract says an adapter must tolerate a dirty one.
+
+## Contract
+
+- [ ] **There is no mechanism for registering a foreign adapter.** The harness
+  builds systems under test from `ADAPTERS`, a hard-coded dict in
+  `membench/build_adapter.py`, so a third party reaches the harness only by
+  forking or patching that file. This is deferred rather than overlooked: what
+  the mechanism should be — an entry point, a dotted-path flag, a manifest
+  field — determines what the manifest can record about an adapter's identity,
+  and that is worth deciding with two real adapters in hand rather than one.
+  The README says plainly that this is the state today.
 
 ## Documentation
 
@@ -85,7 +105,20 @@ judged not to block it.
   against a single adapter; the definition needs a vector store and a graph
   in hand.
 
-- [ ] **`query(question, k)` takes no token budget**, which Track A requires
-  to be identical across systems, and `MemoryAdapter` has no construction
-  contract — the CLI assumes every adapter is a class taking one `Path`.
-  Both are breaking changes to a published contract once it is published.
+- [ ] **Nothing verifies that an adapter honoured `token_budget`.** The
+  comparability of Track A rests entirely on every system being charged the
+  same text budget, and no code path ever checks
+  `sum(count_tokens(hit.text) for hit in evidence)` against the budget that
+  was asked for. An adapter that ignores it, or that repacks its ranking to
+  fit more in, is indistinguishable from one that obeyed. Track R passes no
+  budget, so nothing published today depends on this; enforcement belongs with
+  the gateway and Track A work, which is the first thing that will pass a
+  binding budget.
+
+- [ ] **`truncated` cannot say what cut the ranking.** It is
+  `len(full_sources) > k`, so it signals the `k` cut alone. Under a binding
+  token budget an adapter drops hits from the end and the row still reports
+  `truncated: false`, which reads as a ranking that fit. Documented as "cut at
+  k" in the schema and the field, which is honest for Track R; Track A will
+  need the signal to name which cut fired, and that is a schema change to the
+  row.
