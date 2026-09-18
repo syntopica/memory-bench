@@ -115,6 +115,20 @@ judged not to block it.
   corpus. The plan is a frozen historical document, but a reader meets the
   contradiction.
 
+- [ ] **Four plan documents still name `recall_at_1` and
+  `answer_conversation_id`**, in `docs/superpowers/plans/`:
+  `2026-09-17-harness-core-and-baseline.md` (37 occurrences),
+  `2026-09-18-corpus-a-and-thresholds.md` (25),
+  `2026-09-18-contract-and-reproducible-manifest.md` (5) and
+  `2026-09-18-adapters-and-first-comparison.md` (3). A question is labelled
+  with every conversation that answers it now, so the field is
+  `answer_conversation_ids` and the single recall became the published pair
+  `recall_any_at_k` and `recall_all_at_k`. The plans are frozen build
+  artifacts and are not to be edited; a reader meets the contradiction, and
+  the same reader may take `recall_at_1` for a metric this harness still
+  emits. Smallest next step: if the README's field list is ever extended with
+  a "what these fields used to be called" note, cover both renames at once.
+
 ## Measurement, deliberately deferred
 
 - [ ] **`IngestReport` reports one storage number.** The spec requires
