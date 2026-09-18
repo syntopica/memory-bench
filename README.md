@@ -100,7 +100,15 @@ around it is gone.
 - `--corpus` (required): path to the corpus JSONL. Must exist.
 - `--questions` (required): path to the labelled question set JSONL. Must exist.
 - `--out` (required): directory to write the run's artifacts into.
-- `--k` (default `10`): ranking depth requested and scored. Must be at least 1;
+- `--k` (default `10`): ranking depth requested and scored. It bounds the
+  **ranked source conversations**, not the pieces of evidence a system
+  returns: each distinct conversation id a hit cites spends one slot, in the
+  order given, deduplicated across the whole ranking; a hit that cites nothing
+  spends a slot too; and everything past the k-th slot is discarded before
+  scoring. One memory citing five conversations therefore costs five of the
+  `k`, which is why a consolidated-memory system should cite the conversations
+  that actually support the memory rather than every one it was derived from.
+  Must be at least 1;
   a manifest with a smaller or unbounded `k` than the run it describes is the
   one failure this benchmark cannot tolerate, so `0` or a negative value is
   refused before anything is written. A depth deeper than `k` was never
