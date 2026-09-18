@@ -9,6 +9,7 @@ def _result(*, answerable: bool, abstained: bool | None, applicability: str = "s
         ranked_sources=(),
         applicability=applicability,
         answerable=answerable,
+        answer_label_count=1 if answerable else 0,
         depth=10,
         truncated=False,
         recall_any_at_1=None,

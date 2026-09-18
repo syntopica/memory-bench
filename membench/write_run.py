@@ -8,7 +8,7 @@ from pathlib import Path
 from membench.ingest_report import IngestReport
 from membench.question_result import QuestionResult
 
-RAW_SCHEMA_VERSION = "3.0"
+RAW_SCHEMA_VERSION = "3.1"
 """Version of one `raw.jsonl` row, written onto every row.
 
 Rows travel on their own: they are concatenated across runs, loaded years
@@ -51,6 +51,13 @@ False when it returned something and null on an answerable row. Every metric is
 null on an unanswerable row - undefined, not unobserved and not a miss - and
 that population is reported by its own abstention rate rather than averaged
 into the retrieval means.
+
+3.1 adds `answer_label_count`, which a 3.0 consumer can ignore. It exists
+because 3.0 left an empty all-recall cell ambiguous: the cell is null either
+because the run never looked that deep or because the depth cannot hold that
+many labels, and `depth` alone distinguishes only the first. A row that cannot
+say which of two things it means is the kind of artifact this repository does
+not publish, so the count that settles it travels on the row.
 """
 
 

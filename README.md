@@ -160,6 +160,13 @@ around it is gone.
   measured on the same set, so no system can move a row in or out of a
   denominator by changing what it returns. Every metric below is `null` on an
   unanswerable row.
+- `answer_label_count`: How many conversations this question is labelled with,
+  `0` when it is unanswerable. It is what makes an empty `recall_all_*` cell
+  readable: that cell is `null` either because the run never looked that deep,
+  or because the depth cannot hold this many labels. `depth` settles the first
+  and this settles the second; without both, a consumer cannot tell which
+  happened, and a row that cannot say which of two things it means is not a
+  row this benchmark publishes.
 - `depth`: The `k` this run requested and observed; the six recalls and
   `reciprocal_rank` are measured at that depth and mean nothing without it.
 - `truncated`: `true` when the system offered more slots than `k` and the

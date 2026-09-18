@@ -37,6 +37,12 @@ class QuestionResult:
             a token budget cut the ranking too, and this field still says
             False. Track R passes no budget, so today the two cannot be
             confused; Track A will need a signal that says which cut fired.
+        answer_label_count: How many conversations the question is labelled
+            with. It is what makes an empty all-recall cell readable: that
+            cell is None either because the run never looked that deep, or
+            because the depth cannot hold this many labels, and without the
+            count a consumer cannot tell the two apart. `depth` answers the
+            first, this answers the second. Zero on an unanswerable question.
         recall_any_at_1: 1.0 when at least one labelled conversation ranked
             first.
         recall_any_at_5: 1.0 when at least one appeared in the first five,
@@ -89,6 +95,7 @@ class QuestionResult:
     ranked_sources: tuple[str | None, ...]
     applicability: str
     answerable: bool
+    answer_label_count: int
     depth: int
     truncated: bool
     recall_any_at_1: float | None

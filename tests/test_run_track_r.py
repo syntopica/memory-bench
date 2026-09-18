@@ -441,3 +441,24 @@ def test_all_recall_is_undefined_at_a_depth_that_cannot_hold_every_label():
     assert metric_means(perfect_results)["recall_all_at_5"] == 1.0
     assert metric_means(lazy_results)["recall_all_at_5"] == 0.0
     assert metric_means(lazy_results)["recall_any_at_5"] == 1.0
+
+
+def test_the_row_carries_what_it_needs_to_read_an_empty_all_recall():
+    """Two different reasons produce the same empty cell, so the row must separate them.
+
+    `recall_all_at_5` is null when the run never looked five deep, and also
+    when the question carries more than five labels - no depth of five can
+    hold six conversations. `depth` answers only the first. Without the label
+    count a consumer meets one null and cannot tell a shallow run from a
+    question that outran the depth, which is the ambiguity this field exists
+    to remove before a corpus that triggers it arrives.
+    """
+    question = Question(
+        question_id="qm",
+        question="multi",
+        answer_conversation_ids=("c1", "c5"),
+        strata=("en", "conversation", "overlap", "old"),
+    )
+    result = run_track_r(_StubAdapter([_evidence("c1")]), [question])[0]
+    assert result.answer_label_count == 2
+    assert result.depth == 10
