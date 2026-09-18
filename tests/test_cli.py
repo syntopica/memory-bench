@@ -147,3 +147,42 @@ def test_a_metric_the_run_never_observed_is_reported_as_unavailable(tmp_path: Pa
     assert _run(tmp_path / "run", **{"--k": "2"}) == 0
     printed = capsys.readouterr().out
     assert "recall_at_10@k=2: n/a" in printed
+
+
+def test_missing_adapter_options_file_exits_2_and_writes_nothing(tmp_path: Path):
+    out = tmp_path / "run"
+    exit_code = _run(out, **{"--adapter-options": str(tmp_path / "no-such-options.json")})
+    assert exit_code == 2
+    assert not out.exists()
+
+
+def test_a_non_object_adapter_options_file_exits_2_and_writes_nothing(tmp_path: Path):
+    options = tmp_path / "options.json"
+    options.write_text("[1, 2]", encoding="utf-8")
+    out = tmp_path / "run"
+    exit_code = _run(out, **{"--adapter-options": str(options)})
+    assert exit_code == 2
+    assert not out.exists()
+
+
+def test_an_unknown_option_exits_2_and_writes_nothing(tmp_path: Path):
+    options = tmp_path / "options.json"
+    options.write_text('{"nope": 1}', encoding="utf-8")
+    out = tmp_path / "run"
+    code = main(
+        [
+            "run",
+            "--adapter",
+            "baseline_fts5",
+            "--corpus",
+            str(FIXTURE / "corpus.jsonl"),
+            "--questions",
+            str(FIXTURE / "questions.jsonl"),
+            "--out",
+            str(out),
+            "--adapter-options",
+            str(options),
+        ]
+    )
+    assert code == 2
+    assert not out.exists()

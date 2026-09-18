@@ -37,7 +37,7 @@ def _corpus() -> list[Conversation]:
 
 
 def test_ingest_reports_time_and_bytes_persisted(tmp_path: Path):
-    adapter = BaselineFts5Adapter(tmp_path / "baseline.db")
+    adapter = BaselineFts5Adapter(tmp_path)
     adapter.setup()
     report = adapter.ingest(_corpus())
     adapter.teardown()
@@ -48,7 +48,7 @@ def test_ingest_reports_time_and_bytes_persisted(tmp_path: Path):
 
 
 def test_query_returns_evidence_whose_source_is_the_conversation(tmp_path: Path):
-    adapter = BaselineFts5Adapter(tmp_path / "baseline.db")
+    adapter = BaselineFts5Adapter(tmp_path)
     adapter.setup()
     adapter.ingest(_corpus())
     hits = adapter.query("revertimos WAL", 10, None)
@@ -58,7 +58,7 @@ def test_query_returns_evidence_whose_source_is_the_conversation(tmp_path: Path)
 
 
 def test_query_respects_k(tmp_path: Path):
-    adapter = BaselineFts5Adapter(tmp_path / "baseline.db")
+    adapter = BaselineFts5Adapter(tmp_path)
     adapter.setup()
     adapter.ingest(_corpus())
     hits = adapter.query("montamos OR revertimos", 1, None)
@@ -67,7 +67,7 @@ def test_query_respects_k(tmp_path: Path):
 
 
 def test_a_question_with_punctuation_does_not_raise(tmp_path: Path):
-    adapter = BaselineFts5Adapter(tmp_path / "baseline.db")
+    adapter = BaselineFts5Adapter(tmp_path)
     adapter.setup()
     adapter.ingest(_corpus())
     hits = adapter.query("¿por que se revirtio WAL?", 10, None)
@@ -76,7 +76,7 @@ def test_a_question_with_punctuation_does_not_raise(tmp_path: Path):
 
 
 def test_a_question_containing_fts5_operators_does_not_raise(tmp_path: Path):
-    adapter = BaselineFts5Adapter(tmp_path / "baseline.db")
+    adapter = BaselineFts5Adapter(tmp_path)
     adapter.setup()
     adapter.ingest(_corpus())
     hits = adapter.query("AND OR NOT NEAR revertimos", 10, None)
@@ -85,7 +85,7 @@ def test_a_question_containing_fts5_operators_does_not_raise(tmp_path: Path):
 
 
 def test_an_unaccented_query_matches_an_accented_document(tmp_path: Path):
-    adapter = BaselineFts5Adapter(tmp_path / "baseline.db")
+    adapter = BaselineFts5Adapter(tmp_path)
     adapter.setup()
     adapter.ingest(_corpus())
     hits = adapter.query("configuracion", 10, None)
@@ -94,7 +94,7 @@ def test_an_unaccented_query_matches_an_accented_document(tmp_path: Path):
 
 
 def test_an_accented_query_matches_an_unaccented_document(tmp_path: Path):
-    adapter = BaselineFts5Adapter(tmp_path / "baseline.db")
+    adapter = BaselineFts5Adapter(tmp_path)
     adapter.setup()
     adapter.ingest(_corpus())
     hits = adapter.query("revértimos", 10, None)
@@ -103,7 +103,7 @@ def test_an_accented_query_matches_an_unaccented_document(tmp_path: Path):
 
 
 def test_a_budget_drops_evidence_from_the_end(tmp_path: Path):
-    adapter = BaselineFts5Adapter(tmp_path / "index.db")
+    adapter = BaselineFts5Adapter(tmp_path)
     adapter.setup()
     adapter.ingest(
         [
@@ -133,7 +133,7 @@ def test_a_budget_drops_evidence_from_the_end(tmp_path: Path):
 
 
 def test_a_budget_smaller_than_the_first_hit_returns_nothing(tmp_path: Path):
-    adapter = BaselineFts5Adapter(tmp_path / "index.db")
+    adapter = BaselineFts5Adapter(tmp_path)
     adapter.setup()
     adapter.ingest(
         [

@@ -17,6 +17,12 @@ a new method, a changed signature, a changed meaning of a returned field - and
 the minor part by an addition an existing adapter can ignore.
 
 2.0 adds the token_budget parameter to query.
+
+Construction is part of the contract but outside the Protocol below, because
+it is where adapters differ: an adapter is a callable that takes a workspace
+`Path` it owns exclusively, plus keyword options recorded verbatim in the
+run's manifest, and it creates nothing outside that workspace. `build_adapter`
+is where a name is turned into one of these callables.
 """
 
 
