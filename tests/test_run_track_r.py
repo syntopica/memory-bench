@@ -125,19 +125,19 @@ def _no_provenance() -> Evidence:
     return Evidence(text="a memory I wrote myself", native_id="m1", source_ids=(), timestamp=None)
 
 
-def test_a_run_that_returned_nothing_at_all_has_no_provenance_to_score():
-    """The degenerate end of the run-level rule.
+def test_a_run_that_returned_nothing_at_all_is_scored_the_misses_it_made():
+    """A system that finds nothing is bad, not unmeasurable.
 
-    A system that returned nothing on every question in the run produced no
-    source id anywhere, so it is not applicable rather than a run of zeros.
-    Inside a run that did cite something, the same empty answer is a scored
-    miss - which is what
-    `test_abstaining_and_returning_unsourced_junk_score_the_same` pins.
+    The carve-out is for memories that carry no source conversation, and it
+    takes evidence to exercise. A system that returned nothing on every
+    question never produced such a memory - it searched and failed, every
+    time, which is the zero this records. Excluding it would let "I find
+    nothing" read as "this track does not apply to me".
     """
     result = run_track_r(_StubAdapter([]), [_question()])[0]
-    assert result.applicability == "not_applicable"
-    assert result.recall_at_1 is None
-    assert result.reciprocal_rank is None
+    assert result.applicability == "scored"
+    assert result.recall_at_1 == 0.0
+    assert result.reciprocal_rank == 0.0
 
 
 def test_a_system_with_provenance_is_scored():

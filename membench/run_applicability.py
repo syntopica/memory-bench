@@ -14,6 +14,14 @@ def run_applicability(rankings: Iterable[Sequence[str | None]]) -> str:
     the questions it answered with nothing, and the questions it answered with
     text carrying no source. Those are misses it earned.
 
+    The carve-out needs the architecture to have been exercised, so it takes
+    evidence that carried no source, not an absence of evidence. A system that
+    returned nothing anywhere searched and failed every time, which is what a
+    zero records; excluding it would let "I find nothing" read as "this track
+    does not apply to me", and that is the same free ride one level further
+    out. A run of no questions at all observes neither, and has no rows to
+    carry a verdict either way.
+
     Deciding this per question is the free ride this function exists to close.
     A system that stripped provenance from the questions it expected to lose
     had exactly those rows dropped from the denominator instead of scored zero,
@@ -33,7 +41,9 @@ def run_applicability(rankings: Iterable[Sequence[str | None]]) -> str:
     Returns:
         `"scored"` or `"not_applicable"`, for every row in the run alike.
     """
+    observed_evidence = False
     for ranking in rankings:
         if any(source is not None for source in ranking):
             return "scored"
-    return "not_applicable"
+        observed_evidence = observed_evidence or bool(ranking)
+    return "not_applicable" if observed_evidence else "scored"
