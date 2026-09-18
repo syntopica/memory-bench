@@ -24,7 +24,11 @@ class QuestionResult:
             measured at that depth and means nothing without it.
         truncated: True when the system offered more slots than `k` and the
             ranking was cut, so a reader knows the absence of a later source
-            is the harness's choice and not the system's.
+            is the harness's choice and not the system's. It means "cut at k"
+            and nothing else: an adapter that dropped hits from the end to fit
+            a token budget cut the ranking too, and this field still says
+            False. Track R passes no budget, so today the two cannot be
+            confused; Track A will need a signal that says which cut fired.
         recall_at_1: 1.0 when the answer conversation ranked first.
         recall_at_5: 1.0 when it appeared in the first five, None when the run
             never looked five deep.
@@ -36,6 +40,12 @@ class QuestionResult:
             `depth` is recorded so it is never read as RR at full depth.
         seconds: Wall-clock duration of this single query.
         evidence_texts: The evidence as returned, kept so a miss can be read.
+            One entry per hit, not per slot, and not cut at `k`: it is
+            therefore a different length from `ranked_sources` by
+            construction, in both directions - one hit citing three
+            conversations spends three slots, and the hits whose slots were
+            truncated away keep their text here. `evidence_texts[i]` does not
+            describe `ranked_sources[i]` and must not be zipped with it.
     """
 
     question_id: str

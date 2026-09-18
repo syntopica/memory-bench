@@ -83,7 +83,11 @@ around it is gone.
   `reciprocal_rank` are measured at that depth and mean nothing without it.
 - `truncated`: `true` when the system offered more slots than `k` and the
   ranking was cut, so a reader knows a missing later source is the harness's
-  choice, not the system's.
+  choice, not the system's. It means **cut at `k`**, and nothing else: an
+  adapter that dropped hits from the end to fit a token budget also cut its
+  ranking, and this field still reads `false`. Track R passes no token budget,
+  so the two cannot be confused today; Track A will need a signal that says
+  which cut fired.
 - `recall_at_1`: `1.0` when the answer conversation ranked first.
 - `recall_at_5`: `1.0` when it appeared in the first five, `null` when the
   run never looked five deep.
@@ -92,7 +96,11 @@ around it is gone.
 - `reciprocal_rank`: `1 / rank` of the answer conversation within `depth`,
   `0.0` when it is absent from the observed ranking.
 - `seconds`: Wall-clock duration of this single query.
-- `evidence_texts`: The evidence as returned, kept so a miss can be read.
+- `evidence_texts`: The evidence as returned, kept so a miss can be read. One
+  entry per hit, not per slot, and not cut at `k`, so it is a different length
+  from `ranked_sources` by construction: one hit citing three conversations
+  spends three slots, and a hit whose slot was truncated away still has its
+  text here. The two lists do not align positionally and must not be zipped.
 
 ## Flags
 
