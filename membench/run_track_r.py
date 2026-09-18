@@ -37,7 +37,7 @@ def run_track_r(
     results: list[QuestionResult] = []
     for question in questions:
         started = time.monotonic()
-        evidence = adapter.query(question.question, k)
+        evidence = adapter.query(question.question, k, None)
         seconds = time.monotonic() - started
         full_sources = ranked_sources(evidence)
         sources = full_sources[:k]

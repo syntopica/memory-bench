@@ -14,7 +14,7 @@ class _StubAdapter:
 
     def ingest(self, corpus): ...
 
-    def query(self, question: str, k: int) -> list[Evidence]:
+    def query(self, question: str, k: int, token_budget: int | None) -> list[Evidence]:
         self.asked.append((question, k))
         return self._hits[:k]
 
@@ -30,7 +30,7 @@ class _OverflowingAdapter(_StubAdapter):
     scoring distinction from the adapter's own truncation behavior.
     """
 
-    def query(self, question: str, k: int) -> list[Evidence]:
+    def query(self, question: str, k: int, token_budget: int | None) -> list[Evidence]:
         self.asked.append((question, k))
         return self._hits
 
