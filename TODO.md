@@ -14,6 +14,24 @@ judged not to block it.
   noticing. Either qualify the field name or document the constraint where a
   consumer will read it.
 
+- [ ] **No shipped corpus exercises a multi-label or an unanswerable question
+  end to end.** `recall_all_*` and the abstention line are covered by unit
+  tests and by a CLI test that writes its own question file, but
+  `corpora/fixture/questions.jsonl` carries six single-label answerable
+  questions, so the paths a real corpus will take through the CLI are proved
+  only by tests that construct them. Adding either to the fixture would move
+  its published headline, which is deliberately pinned, so the fix belongs
+  with LongMemEval-S or Corpus A: the first corpus carrying both must assert
+  its own counts rather than inherit this one's confidence.
+
+- [ ] **`reciprocal_rank` reports the best-ranked label, and nothing reports
+  the worst.** The rule is published in the field's docstring, in `README.md`
+  and in the schema changelog, and it answers "how quickly did the system
+  reach the answer". It cannot answer "how far must a reader go to hold the
+  whole answer", which is the question a multi-hop result actually raises.
+  That is a new metric with its own name when it is wanted, never a
+  redefinition of this one.
+
 ## Artifacts
 
 - [ ] **`portable_path` is relative to the working directory, not to the
