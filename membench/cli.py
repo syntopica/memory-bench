@@ -106,7 +106,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     observations = metric_observations(results)
     for metric, mean in metric_means(results).items():
         value = "n/a" if mean is None else format(mean, ".4f")
-        print(f"{metric}@k={args.k}: {value} (over {observations[metric]} questions)")
+        observed = observations[metric]
+        noun = "question" if observed == 1 else "questions"
+        print(f"{metric}@k={args.k}: {value} (over {observed} {noun})")
     print(
         f"scored {len(answerable) - len(excluded)} of {len(answerable)} answerable questions; "
         f"{len(excluded)} excluded as not applicable to Track R"

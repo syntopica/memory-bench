@@ -56,18 +56,25 @@ class QuestionResult:
             None when the run never looked five deep.
         recall_any_at_10: 1.0 when at least one appeared in the first ten,
             None when the run never looked ten deep.
-        recall_all_at_1: 1.0 when the one labelled conversation ranked first,
-            and None on a question labelled with more than one - a single
-            slot cannot hold two conversations, so nothing was observed there
-            about whether every label was found. Not 0.0: that would be a
-            miss no system could avoid, and its mean would report the share
-            of single-label questions in the set.
+        recall_all_at_1: 1.0 when every labelled conversation ranked first,
+            which only a question carrying one distinct label can do, and None
+            on a question carrying more than one - a single slot cannot hold
+            two conversations, so nothing was observed there about whether
+            every label was found. Not 0.0: that would be a miss no system
+            could avoid, and its mean would report the share of single-label
+            questions in the set.
         recall_all_at_5: 1.0 when every labelled conversation appeared in the
             first five, None when the run never looked five deep or the
-            question carries more than five labels.
+            question carries more than five distinct labels.
         recall_all_at_10: 1.0 when every labelled conversation appeared in the
             first ten, None when the run never looked ten deep or the
-            question carries more than ten labels.
+            question carries more than ten distinct labels.
+
+            Distinct throughout, because that is what the metric decides on:
+            a question naming the same conversation six times is satisfied by
+            one rank slot, so it behaves as a single-label question and is
+            scored at every depth. `answer_label_count` on this row is the
+            distinct count and is what a reader applies these rules with.
             `recall_any_*` and `recall_all_*` are reported side by side and
             are never averaged together: a question answered by three
             conversations, one of which was found, is a hit for the first and

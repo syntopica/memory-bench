@@ -398,13 +398,16 @@ def test_the_fixture_headline_is_exactly_what_the_readme_publishes(tmp_path: Pat
     assert _run(out) == 0
     printed = capsys.readouterr().out
 
-    assert "recall_any_at_1@k=10: 0.6667" in printed
-    assert "recall_any_at_5@k=10: 1.0000" in printed
-    assert "recall_any_at_10@k=10: 1.0000" in printed
-    assert "recall_all_at_1@k=10: 0.6667" in printed
-    assert "recall_all_at_5@k=10: 1.0000" in printed
-    assert "recall_all_at_10@k=10: 1.0000" in printed
-    assert "reciprocal_rank@k=10: 0.8056" in printed
+    # The denominator is part of the published line, not decoration: the seven
+    # means are not taken over the same questions, and asserting the value
+    # without it would keep passing if the count were deleted.
+    assert "recall_any_at_1@k=10: 0.6667 (over 6 questions)" in printed
+    assert "recall_any_at_5@k=10: 1.0000 (over 6 questions)" in printed
+    assert "recall_any_at_10@k=10: 1.0000 (over 6 questions)" in printed
+    assert "recall_all_at_1@k=10: 0.6667 (over 6 questions)" in printed
+    assert "recall_all_at_5@k=10: 1.0000 (over 6 questions)" in printed
+    assert "recall_all_at_10@k=10: 1.0000 (over 6 questions)" in printed
+    assert "reciprocal_rank@k=10: 0.8056 (over 6 questions)" in printed
 
     rows = {
         json.loads(line)["question_id"]: json.loads(line)

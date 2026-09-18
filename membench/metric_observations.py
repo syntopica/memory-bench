@@ -4,6 +4,7 @@ from collections.abc import Sequence
 
 from membench.metric_means import METRICS
 from membench.question_result import QuestionResult
+from membench.scored_answerable_rows import scored_answerable_rows
 
 
 def metric_observations(results: Sequence[QuestionResult]) -> dict[str, int]:
@@ -18,9 +19,10 @@ def metric_observations(results: Sequence[QuestionResult]) -> dict[str, int]:
     are misleading, and a benchmark asking to be cited cannot publish a mean
     whose population is stated only in a docstring.
 
-    This counts the same rows `metric_means` averages, by the same rule, so
-    the two cannot drift: a metric's count is the length of the list its mean
-    divided by.
+    This counts the same rows `metric_means` averages, and the two cannot
+    drift because both take that population from `scored_answerable_rows`
+    rather than each writing the filter out: a metric's count is the length of
+    the list its mean divided by.
 
     Args:
         results: Every question's result, in question order.
@@ -28,9 +30,7 @@ def metric_observations(results: Sequence[QuestionResult]) -> dict[str, int]:
     Returns:
         One count per metric, 0 where no row observed it.
     """
-    scored = [
-        result for result in results if result.answerable and result.applicability == "scored"
-    ]
+    scored = scored_answerable_rows(results)
     return {
         metric: sum(1 for result in scored if getattr(result, metric) is not None)
         for metric in METRICS

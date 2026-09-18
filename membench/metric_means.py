@@ -3,6 +3,7 @@
 from collections.abc import Sequence
 
 from membench.question_result import QuestionResult
+from membench.scored_answerable_rows import scored_answerable_rows
 
 METRICS = (
     "recall_any_at_1",
@@ -63,9 +64,7 @@ def metric_means(results: Sequence[QuestionResult]) -> dict[str, float | None]:
     Returns:
         A mean per metric, None where no row observed that metric.
     """
-    scored = [
-        result for result in results if result.answerable and result.applicability == "scored"
-    ]
+    scored = scored_answerable_rows(results)
     means: dict[str, float | None] = {}
     for metric in METRICS:
         observed = [value for result in scored if (value := getattr(result, metric)) is not None]

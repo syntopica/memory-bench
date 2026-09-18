@@ -60,9 +60,22 @@ matches almost everything in six documents. Only `recall_any_at_1` and the
 reciprocal rank separate anything here. Every fixture question carries one
 labelled conversation, so the `recall_all_*` columns repeat the `recall_any_*`
 ones exactly, and the abstention line reports that the set holds no
-unanswerable question rather than a rate it did not observe. A corpus this benchmark reports recall@10 on has to be
-large enough for the number to mean something, and a saturated column is
-reported as saturated rather than as a tie.
+unanswerable question rather than a rate it did not observe. A corpus this
+benchmark reports recall@10 on has to be large enough for the number to mean
+something, and a saturated column is reported as saturated rather than as a
+tie.
+
+Each metric line ends with the number of questions its mean was taken over,
+because the seven means are not taken over the same ones. A `recall_all_*` is
+undefined for every question carrying more distinct labels than that depth can
+hold, so on a set of mostly multi-label questions its mean can rest on a
+handful of rows while the `recall_any_*` beside it rests on all of them. Both
+numbers are honest; printed side by side without their populations they invite
+the reading that they are comparable, and a mean whose denominator is stated
+only in a docstring is not a mean this benchmark publishes. The population is
+the questions that were answerable and whose run was scorable, which is decided
+by the question set and the run before any system is asked - so no system can
+change a count by changing what it returns.
 
 ## Writing an adapter
 
@@ -185,10 +198,11 @@ around it is gone.
   `null` when the run never looked five deep.
 - `recall_any_at_10`: `1.0` when at least one appeared in the first ten,
   `null` when the run never looked ten deep.
-- `recall_all_at_1`: `1.0` when the one labelled answer conversation ranked
-  first, and `null` on a question labelled with more than one: a single slot
-  cannot hold two conversations, so that depth observed nothing about whether
-  **every** label was found. It is not `0.0`. A perfect system returning all
+- `recall_all_at_1`: `1.0` when every labelled answer conversation ranked
+  first, which only a question carrying one **distinct** label can do, and
+  `null` on a question carrying more than one: a single slot cannot hold two
+  conversations, so that depth observed nothing about whether **every** label
+  was found. It is not `0.0`. A perfect system returning all
   three labels of a three-label question in rank order and a lazy one
   returning only the first would score that zero alike, and the mean of those
   zeros is the share of single-label questions in the question set - a
@@ -198,7 +212,13 @@ around it is gone.
   distinct labels and five slots could not hold them.
 - `recall_all_at_10`: `1.0` when every one appeared in the first ten, `null`
   when the run never looked ten deep, or the question carries more than ten
-  labels.
+  distinct labels.
+
+  Distinct in all three, because that is what the metric decides on. A
+  question naming the same conversation six times is satisfied by one rank
+  slot, so it behaves as a single-label question and is scored at every depth
+  - apply these rules with `answer_label_count`, which is the distinct count,
+  not with the length of the label list in the question file.
 
   A question may be answered by more than one conversation - LongMemEval
   labels `answer_session_ids`, plural, and its multi-session questions are
