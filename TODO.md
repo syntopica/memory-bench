@@ -37,6 +37,17 @@ judged not to block it.
   is cut at `k` with no signal, so a reader cannot distinguish "the system
   returned three sources" from "we asked for three".
 
+- [ ] **A forced re-run does not clear the adapter's workspace.** `--force`
+  correctly overwrites the harness's own `manifest.json` and `raw.jsonl`, but
+  `<out>/workspace/` keeps whatever the previous run's adapter left there. Run
+  system A, then re-run system B with `--force` into the same directory, and
+  B's workspace still holds A's files. No harness artifact is wrong — the
+  adapter owns its workspace and cleans its own state, as the FTS5 baseline
+  does — but a second adapter has no way to know it inherited a first one's
+  leftovers, and "ingest into an empty system" is what the contract promises.
+  Decide whether the harness clears the workspace on `--force` or the contract
+  says an adapter must tolerate a dirty one.
+
 ## Documentation
 
 - [ ] **No reader-facing specification with stable revisions to cite.** What a
