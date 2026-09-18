@@ -22,7 +22,7 @@ def test_loads_a_labelled_question(tmp_path: Path):
     )
     questions = load_questions(path)
     assert questions[0].question_id == "q1"
-    assert questions[0].answer_conversation_id == "c1"
+    assert questions[0].answer_conversation_ids == ("c1",)
     assert questions[0].strata == ("es", "conversation", "overlap", "recent")
 
 
@@ -40,7 +40,7 @@ def test_an_unlabelled_question_is_rejected(tmp_path: Path):
         + "\n",
         encoding="utf-8",
     )
-    with pytest.raises(ValueError, match="question q1 has no answer_conversation_id"):
+    with pytest.raises(ValueError, match="question q1 has an empty answer_conversation_id"):
         load_questions(path)
 
 
@@ -53,7 +53,7 @@ def test_an_explicit_null_answer_is_an_unanswerable_question(tmp_path):
         encoding="utf-8",
     )
     question = load_questions(path)[0]
-    assert question.answer_conversation_id is None
+    assert question.answer_conversation_ids == ()
 
 
 def test_a_missing_answer_key_is_still_an_unlabelled_question(tmp_path):
@@ -100,4 +100,58 @@ def test_a_stratum_tag_outside_the_vocabulary_is_rejected(tmp_path):
         encoding="utf-8",
     )
     with pytest.raises(ValueError, match="reciente"):
+        load_questions(path)
+
+
+def test_a_plural_key_is_read_as_the_label_set(tmp_path):
+    path = tmp_path / "q.jsonl"
+    path.write_text(
+        '{"question_id": "q1", "question": "x",'
+        ' "answer_conversation_ids": ["s3", "s9"],'
+        ' "strata": ["en", "conversation", "overlap", "old"]}\n',
+        encoding="utf-8",
+    )
+    assert load_questions(path)[0].answer_conversation_ids == ("s3", "s9")
+
+
+def test_an_empty_plural_key_is_an_unanswerable_question(tmp_path):
+    path = tmp_path / "q.jsonl"
+    path.write_text(
+        '{"question_id": "q1", "question": "x", "answer_conversation_ids": [],'
+        ' "strata": ["en", "conversation", "overlap", "old"]}\n',
+        encoding="utf-8",
+    )
+    assert load_questions(path)[0].answer_conversation_ids == ()
+
+
+def test_both_keys_at_once_is_an_error(tmp_path):
+    path = tmp_path / "q.jsonl"
+    path.write_text(
+        '{"question_id": "q1", "question": "x", "answer_conversation_id": "c1",'
+        ' "answer_conversation_ids": ["c2"], "strata": ["en"]}\n',
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="both answer_conversation_id and"):
+        load_questions(path)
+
+
+def test_an_empty_string_inside_the_plural_key_is_an_unlabelled_question(tmp_path):
+    path = tmp_path / "q.jsonl"
+    path.write_text(
+        '{"question_id": "q1", "question": "x", "answer_conversation_ids": ["c1", ""],'
+        ' "strata": ["en"]}\n',
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="empty answer_conversation_id"):
+        load_questions(path)
+
+
+def test_a_plural_key_that_is_not_a_list_is_refused(tmp_path):
+    path = tmp_path / "q.jsonl"
+    path.write_text(
+        '{"question_id": "q1", "question": "x", "answer_conversation_ids": "c1",'
+        ' "strata": ["en"]}\n',
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="answer_conversation_ids must be a list"):
         load_questions(path)

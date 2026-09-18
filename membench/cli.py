@@ -7,6 +7,7 @@ from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 
+from membench.abstention_rate import abstention_rate
 from membench.adapter_lifecycle import adapter_lifecycle
 from membench.build_adapter import ADAPTERS, build_adapter
 from membench.build_manifest import build_manifest
@@ -91,11 +92,27 @@ def main(argv: Sequence[str] | None = None) -> int:
     write_run(args.out, manifest, results, ingest)
     print(f"wrote {args.out}/raw.jsonl and {args.out}/manifest.json")
 
-    excluded = [result for result in results if result.applicability != "scored"]
+    answerable = [result for result in results if result.answerable]
+    # Counted among the answerable rows only. Applicability is a verdict on
+    # the whole run, so this is all of them or none; counting the unanswerable
+    # rows in as well would subtract them twice and report a negative tally.
+    excluded = [result for result in answerable if result.applicability != "scored"]
     for metric, mean in metric_means(results).items():
         print(f"{metric}@k={args.k}: {'n/a' if mean is None else format(mean, '.4f')}")
     print(
-        f"scored {len(results) - len(excluded)} of {len(results)} questions; "
+        f"scored {len(answerable) - len(excluded)} of {len(answerable)} answerable questions; "
         f"{len(excluded)} excluded as not applicable to Track R"
+    )
+    # The unanswerable population is printed outside the metric block on
+    # purpose. It is not a retrieval number and must not be read beside the
+    # means as though it could be averaged with them: a system that returns
+    # nothing everywhere earns 0.0 on every line above and 1.0 on this one.
+    rate = abstention_rate(results)
+    unanswerable = len(results) - len(answerable)
+    print(
+        "abstention: n/a; the question set holds no unanswerable questions"
+        if rate is None
+        else f"abstention: {rate:.4f} over {unanswerable} unanswerable "
+        + ("question" if unanswerable == 1 else "questions")
     )
     return 0

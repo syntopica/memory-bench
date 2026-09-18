@@ -53,11 +53,14 @@ The floor is the point: SQLite FTS5 with no model, no embedding and no
 extraction. Every sophisticated system is measured by how far above it lands.
 
 This fixture is six conversations, and it is a smoke test, not a result. It
-prints `recall_at_5` and `recall_at_10` of `1.0000`, and those two columns are
-**saturated, not perfect**: recall@k only discriminates while `k` is far
-smaller than the corpus, and a lexical query that ORs its tokens matches
-almost everything in six documents. Only `recall_at_1` and the reciprocal rank
-separate anything here. A corpus this benchmark reports recall@10 on has to be
+prints `recall_any_at_5` and `recall_any_at_10` of `1.0000`, and those two
+columns are **saturated, not perfect**: recall@k only discriminates while `k`
+is far smaller than the corpus, and a lexical query that ORs its tokens
+matches almost everything in six documents. Only `recall_any_at_1` and the
+reciprocal rank separate anything here. Every fixture question carries one
+labelled conversation, so the `recall_all_*` columns repeat the `recall_any_*`
+ones exactly, and the abstention line reports that the set holds no
+unanswerable question rather than a rate it did not observe. A corpus this benchmark reports recall@10 on has to be
 large enough for the number to mean something, and a saturated column is
 reported as saturated rather than as a tie.
 
@@ -142,7 +145,7 @@ around it is gone.
   marks a slot spent by evidence that carried no source conversation.
 - `applicability`: `"scored"`, or `"not_applicable"` when the system returned
   evidence and none of it, on any question in the **whole run**, carried a
-  source conversation - which leaves the three recalls and `reciprocal_rank`
+  source conversation - which leaves the six recalls and `reciprocal_rank`
   `null`. It is a property of the system, not of one answer, so every row of a
   run carries the same value: there is no mixed run, and a response that came
   back without provenance scores the misses it earned rather than leaving the
@@ -151,7 +154,13 @@ around it is gone.
   searched and failed every time, and is scored the zeros that records.
   `depth` and `truncated` are still reported: they describe the request and
   the ranking, not the score.
-- `depth`: The `k` this run requested and observed; the three recalls and
+- `answerable`: `false` exactly when the corpus deliberately cannot answer
+  this question, which it states by labelling it with no answer conversation
+  at all. It is a property of the question, identical for every system
+  measured on the same set, so no system can move a row in or out of a
+  denominator by changing what it returns. Every metric below is `null` on an
+  unanswerable row.
+- `depth`: The `k` this run requested and observed; the six recalls and
   `reciprocal_rank` are measured at that depth and mean nothing without it.
 - `truncated`: `true` when the system offered more slots than `k` and the
   ranking was cut, so a reader knows a missing later source is the harness's
@@ -160,26 +169,78 @@ around it is gone.
   ranking, and this field still reads `false`. Track R passes no token budget,
   so the two cannot be confused today; Track A will need a signal that says
   which cut fired.
-- `recall_at_1`: `1.0` when the answer conversation ranked first.
-- `recall_at_5`: `1.0` when it appeared in the first five, `null` when the
-  run never looked five deep.
-- `recall_at_10`: `1.0` when it appeared in the first ten, `null` when the
-  run never looked ten deep.
-- `reciprocal_rank`: `1 / rank` of the answer conversation within `depth`,
-  `0.0` when it is absent from the observed ranking.
+- `recall_any_at_1`: `1.0` when **at least one** labelled answer conversation
+  ranked first.
+- `recall_any_at_5`: `1.0` when at least one appeared in the first five,
+  `null` when the run never looked five deep.
+- `recall_any_at_10`: `1.0` when at least one appeared in the first ten,
+  `null` when the run never looked ten deep.
+- `recall_all_at_1`: `1.0` when **every** labelled answer conversation is
+  within the first slot, which only a single-label question can be.
+- `recall_all_at_5`: `1.0` when every one appeared in the first five, `null`
+  when the run never looked five deep.
+- `recall_all_at_10`: `1.0` when every one appeared in the first ten, `null`
+  when the run never looked ten deep.
 
-  All four are also `null` for a question the corpus deliberately cannot
+  A question may be answered by more than one conversation - LongMemEval
+  labels `answer_session_ids`, plural, and its multi-session questions are
+  precisely the multi-hop ones - so recall is published twice and **never
+  averaged into one number**. `any` asks whether the system found a way in;
+  `all` asks whether it found the whole answer. A system that surfaced one of
+  the three conversations a question needs is a hit for the first and a miss
+  for the second, and it is neither of those things alone. With a single
+  labelled conversation the two coincide by construction, which is why
+  widening the label moved no number this repository had already published.
+- `reciprocal_rank`: `1 / rank` of the **best-ranked** labelled answer
+  conversation within `depth`, `0.0` when none of them is in the observed
+  ranking. Best-ranked is the published rule. The worst-ranked convention is a
+  different measurement - how far a reader must go to hold the whole answer -
+  and choosing between them silently would change every published number
+  without a version saying it changed; if that measurement is ever wanted it
+  arrives as a new field with its own name.
+
+  All seven are also `null` for a question the corpus deliberately cannot
   answer, which carries no answer conversation at all. That is a third reason
   a cell is empty, and it is not the same as the other two: the run may have
   looked as deep as it was asked to and the system may have provenance, and
   the metric still has no target to be right or wrong about. Read a `null`
-  against `depth` and `applicability` before concluding which case it is.
+  against `depth`, `applicability` and `answerable` before concluding which
+  case it is.
+- `abstained`: `true` when the system returned nothing at all for this
+  question, `false` when it returned something, and `null` on an answerable
+  row, where the question does not arise. Evidence that names no source is
+  **not** abstaining: the system answered, and it answered without
+  provenance.
 - `seconds`: Wall-clock duration of this single query.
 - `evidence_texts`: The evidence as returned, kept so a miss can be read. One
   entry per hit, not per slot, and not cut at `k`, so it is a different length
   from `ranked_sources` by construction: one hit citing three conversations
   spends three slots, and a hit whose slot was truncated away still has its
   text here. The two lists do not align positionally and must not be zipped.
+
+## Questions the corpus cannot answer
+
+A question set may state that a question has no answer, by labelling it with
+none. Those rows are a separate population and they are reported separately:
+**every metric is `null` on them**, and what is measured instead is whether the
+system abstained - returned nothing at all. The CLI prints that as its own
+line, outside the metric block:
+
+```
+abstention: 1.0000 over 12 unanswerable questions
+```
+
+and, when the set holds no such question, as `abstention: n/a`, because a rate
+over nothing was not observed and `0.0000` would claim the system failed to
+decline questions it was never asked.
+
+The two populations are never merged, and the reason is arithmetic rather than
+taste. An unanswerable question has no conversation to find, so any number
+recorded for it is a number recorded for returning nothing. Scored as a miss it
+would punish the correct behaviour; scored as a hit it would hand a perfect
+recall to a system that answers every question with silence. Kept apart, a
+system that returns nothing on every question reports `0.0000` on every recall
+and `1.0000` on abstention, which is exactly what it did.
 
 ## Flags
 
@@ -199,7 +260,7 @@ around it is gone.
   a manifest with a smaller or unbounded `k` than the run it describes is the
   one failure this benchmark cannot tolerate, so `0` or a negative value is
   refused before anything is written. A depth deeper than `k` was never
-  observed, so `recall_at_5` and `recall_at_10` are written as `null` rather
+  observed, so the `*_at_5` and `*_at_10` recalls are written as `null` rather
   than as misses when `k` is smaller than they are.
 - `--force`: overwrite an existing run directory. Without it, a run refuses to
   touch a directory that already holds a `manifest.json`, so a frozen result is

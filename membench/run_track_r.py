@@ -3,13 +3,13 @@
 import time
 from collections.abc import Sequence
 
+from membench.abstention_verdict import abstention_verdict
 from membench.evidence import Evidence
 from membench.memory_adapter import MemoryAdapter
 from membench.question import Question
+from membench.question_metrics import question_metrics
 from membench.question_result import QuestionResult
 from membench.ranked_sources import ranked_sources
-from membench.recall_at_depth import recall_at_depth
-from membench.reciprocal_rank import reciprocal_rank
 from membench.run_applicability import run_applicability
 
 
@@ -28,6 +28,12 @@ def run_track_r(
     them; only a system whose evidence named no source on any question is
     excluded, and then entirely. Returning nothing is not that: it is a search
     that failed, and it is scored. `run_applicability` holds the reasoning.
+
+    A question the corpus deliberately cannot answer carries an empty label
+    set. Every metric is None on its row - undefined, not unobserved and not a
+    miss - and what is recorded instead is whether the system abstained.
+    `question_metrics` and `abstention_verdict` hold that reasoning, and
+    `abstention_rate` reports the population; the two are never merged.
 
     Args:
         adapter: The system under test, already set up and ingested.
@@ -56,33 +62,25 @@ def run_track_r(
     results: list[QuestionResult] = []
     for question, evidence, full_sources, seconds in asked:
         sources = full_sources[:k]
-        answer = question.answer_conversation_id
-        # A question the corpus marks unanswerable has no target conversation
-        # to rank against, so recall and reciprocal rank are unobserved here
-        # rather than a real zero - the same reasoning recall_at_depth already
-        # applies when a depth is deeper than the run's k. Scoring the
-        # deliberate absence itself, rather than leaving it unscored, is a
-        # policy decision for the metric that reads applicability, not this one.
+        answer_ids = question.answer_conversation_ids
+        metrics = question_metrics(sources, answer_ids, k, scorable=scorable)
         results.append(
             QuestionResult(
                 question_id=question.question_id,
                 strata=question.strata,
                 ranked_sources=tuple(sources),
                 applicability=applicability,
+                answerable=bool(answer_ids),
                 depth=k,
                 truncated=len(full_sources) > k,
-                recall_at_1=recall_at_depth(sources, answer, 1, k)
-                if scorable and answer is not None
-                else None,
-                recall_at_5=recall_at_depth(sources, answer, 5, k)
-                if scorable and answer is not None
-                else None,
-                recall_at_10=recall_at_depth(sources, answer, 10, k)
-                if scorable and answer is not None
-                else None,
-                reciprocal_rank=reciprocal_rank(sources, answer)
-                if scorable and answer is not None
-                else None,
+                recall_any_at_1=metrics["recall_any_at_1"],
+                recall_any_at_5=metrics["recall_any_at_5"],
+                recall_any_at_10=metrics["recall_any_at_10"],
+                recall_all_at_1=metrics["recall_all_at_1"],
+                recall_all_at_5=metrics["recall_all_at_5"],
+                recall_all_at_10=metrics["recall_all_at_10"],
+                reciprocal_rank=metrics["reciprocal_rank"],
+                abstained=abstention_verdict(full_sources, answerable=bool(answer_ids)),
                 seconds=seconds,
                 evidence_texts=tuple(hit.text for hit in evidence),
             )
