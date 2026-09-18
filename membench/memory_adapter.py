@@ -37,9 +37,16 @@ class MemoryAdapter(Protocol):
         `token_budget` is the harness's `count_tokens` applied to the returned
         texts, and it is identical for every system in a run: an adapter
         returns the longest prefix of its ranking that fits, dropping from the
-        end. None means unbounded, which is what Track R passes, because Track
-        R scores which conversations were found rather than how much text
-        came back.
+        end. Dropping is from the end only - never from the middle, and never
+        by re-ranking to pack the budget better, because a system that repacks
+        is answering a different question from one that does not.
+
+        None means unbounded, which is what Track R passes, because Track R
+        scores which conversations were found rather than how much text came
+        back. Otherwise the budget is zero or greater; a negative budget is a
+        caller error, and an adapter is not required to detect one. A piece of
+        evidence whose text is empty costs nothing, so a budget of zero admits
+        it - "zero tokens" bounds the text returned, not the number of hits.
         """
         ...
 
