@@ -1,6 +1,7 @@
 import pytest
 
 from membench.evidence import Evidence
+from membench.metric_means import metric_means
 from membench.question import Question
 from membench.run_track_r import run_track_r
 
@@ -124,11 +125,19 @@ def _no_provenance() -> Evidence:
     return Evidence(text="a memory I wrote myself", native_id="m1", source_ids=(), timestamp=None)
 
 
-def test_a_system_that_returned_nothing_is_a_scored_miss():
+def test_a_run_that_returned_nothing_at_all_has_no_provenance_to_score():
+    """The degenerate end of the run-level rule.
+
+    A system that returned nothing on every question in the run produced no
+    source id anywhere, so it is not applicable rather than a run of zeros.
+    Inside a run that did cite something, the same empty answer is a scored
+    miss - which is what
+    `test_abstaining_and_returning_unsourced_junk_score_the_same` pins.
+    """
     result = run_track_r(_StubAdapter([]), [_question()])[0]
-    assert result.applicability == "scored"
-    assert result.recall_at_1 == 0.0
-    assert result.reciprocal_rank == 0.0
+    assert result.applicability == "not_applicable"
+    assert result.recall_at_1 is None
+    assert result.reciprocal_rank is None
 
 
 def test_a_system_with_provenance_is_scored():
@@ -232,3 +241,98 @@ def test_a_ranking_that_fits_says_it_was_not_cut():
     result = run_track_r(adapter, [question], 10)[0]
 
     assert result.truncated is False
+
+
+class _PerQuestionAdapter(_StubAdapter):
+    """A stub whose answer depends on which question it was asked."""
+
+    def __init__(self, hits_by_question: dict[str, list[Evidence]]) -> None:
+        super().__init__([])
+        self._hits_by_question = hits_by_question
+
+    def query(self, question: str, k: int, token_budget: int | None) -> list[Evidence]:
+        self.asked.append((question, k))
+        return self._hits_by_question[question][:k]
+
+
+def _labelled(question_id: str, answer: str) -> Question:
+    return Question(
+        question_id=question_id,
+        question=question_id,
+        answer_conversation_id=answer,
+        strata=(),
+    )
+
+
+def test_an_unsourced_answer_scores_zero_when_the_run_has_provenance():
+    adapter = _PerQuestionAdapter(
+        {"q1": [_evidence("c1")], "q2": [_no_provenance()]},
+    )
+    results = run_track_r(adapter, [_labelled("q1", "c1"), _labelled("q2", "c2")])
+
+    assert [result.applicability for result in results] == ["scored", "scored"]
+    assert results[1].recall_at_1 == 0.0
+    assert results[1].recall_at_5 == 0.0
+    assert results[1].recall_at_10 == 0.0
+    assert results[1].reciprocal_rank == 0.0
+
+
+def test_a_run_without_any_provenance_is_not_applicable_on_every_row():
+    adapter = _PerQuestionAdapter(
+        {"q1": [_no_provenance()], "q2": []},
+    )
+    results = run_track_r(adapter, [_labelled("q1", "c1"), _labelled("q2", "c2")])
+
+    assert [result.applicability for result in results] == ["not_applicable", "not_applicable"]
+    assert metric_means(results) == {
+        "recall_at_1": None,
+        "recall_at_5": None,
+        "recall_at_10": None,
+        "reciprocal_rank": None,
+    }
+
+
+def test_stripping_provenance_on_the_questions_it_loses_buys_a_system_nothing():
+    """The exploit this fix closes, stated as a test.
+
+    Two systems retrieve identically on the two questions they can answer and
+    fail identically on the three they cannot. The honest one reports the
+    wrong conversations it found; the other returns the same text with the
+    source ids stripped. When applicability was decided per question, the
+    second system's three failures left the denominator and every headline
+    metric rose from 0.4 to 1.0 on identical retrieval. Applicability is a
+    property of the run, so both must now report the same means.
+    """
+    questions = [_labelled(f"q{index}", f"c{index}") for index in range(1, 6)]
+    wins = {"q1": [_evidence("c1")], "q2": [_evidence("c2")]}
+    losses = {f"q{index}": [_evidence("c9")] for index in range(3, 6)}
+    stripped = {
+        question_id: [
+            Evidence(text=hit.text, native_id=hit.native_id, source_ids=(), timestamp=None)
+            for hit in hits
+        ]
+        for question_id, hits in losses.items()
+    }
+
+    honest = run_track_r(_PerQuestionAdapter(wins | losses), questions)
+    exploiting = run_track_r(_PerQuestionAdapter(wins | stripped), questions)
+
+    assert metric_means(honest) == metric_means(exploiting)
+    assert metric_means(exploiting)["recall_at_1"] == pytest.approx(0.4)
+    assert all(result.applicability == "scored" for result in exploiting)
+
+
+def test_abstaining_and_returning_unsourced_junk_score_the_same():
+    sourced = {"q1": [_evidence("c1")]}
+    silent = run_track_r(
+        _PerQuestionAdapter(sourced | {"q2": []}),
+        [_labelled("q1", "c1"), _labelled("q2", "c2")],
+    )
+    junk = run_track_r(
+        _PerQuestionAdapter(sourced | {"q2": [_no_provenance()]}),
+        [_labelled("q1", "c1"), _labelled("q2", "c2")],
+    )
+
+    assert metric_means(silent) == metric_means(junk)
+    assert silent[1].applicability == junk[1].applicability == "scored"
+    assert silent[1].reciprocal_rank == junk[1].reciprocal_rank == 0.0

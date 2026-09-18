@@ -10,10 +10,13 @@ _METRICS = ("recall_at_1", "recall_at_5", "recall_at_10", "reciprocal_rank")
 def metric_means(results: Sequence[QuestionResult]) -> dict[str, float | None]:
     """Return one mean per metric, over the rows that observed it.
 
-    A missing number is never averaged as a zero. A system with no provenance
-    is not applicable to this track and its rows are skipped entirely, and a
-    depth the run never reached has no mean at all rather than a mean of the
-    misses it never made.
+    A missing number is never averaged as a zero. Applicability is a property
+    of the run, so the skip below is all-or-nothing: either every row is
+    `"scored"` and averaged, or a system produced no source id anywhere, is
+    not applicable to this track, and every metric is None. A partial
+    exclusion cannot exist, so no row can be dropped from a denominator to
+    lift a mean. A depth the run never reached still has no mean at all,
+    rather than a mean of the misses it never made.
 
     Args:
         results: Every question's result, in question order.
