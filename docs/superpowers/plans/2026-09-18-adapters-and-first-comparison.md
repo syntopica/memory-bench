@@ -101,11 +101,36 @@ construction, not a mem0 feature, so nobody later reports it as one.
 - Create: `corpora/longmemeval-s/corpus.jsonl`, `questions.jsonl`
 - Test: `tests/test_ingest_longmemeval.py`
 
-Before writing anything, **read the real dataset** and record its actual shape
-in the README: how a session, its turns and its `answer_session_ids` are keyed,
-whether `has_answer` is per-turn, how many questions carry more than one answer
-session, and how many are abstention questions. Everything below assumes the
-spec's verified claim that `answer_session_ids` exists; if the data disagrees,
+**Three things were established before this task was written, by querying the
+Hugging Face API directly on 2026-09-18. Do not re-derive them; do verify the
+digests.**
+
+1. **Take the cleaned release, not the original.** `xiaowu0162/longmemeval-cleaned`
+   is MIT and its own card says it "replaces the original LongMemEval dataset",
+   removing "noisy history sessions that interfere with the answer
+   correctness". The author superseded their own data. Using the original would
+   measure against labels its author has withdrawn. Record this in the corpus
+   README, and record the consequence the spec's comparability section needs: a
+   system's published LongMemEval score may have been obtained against the
+   noisy release, which is one more reason those numbers are context and not
+   comparisons.
+2. **The corpus is not committed.** `longmemeval_s_cleaned.json` is 277,383,467
+   bytes. Committing it, or a conversion of it, would put a quarter of a
+   gigabyte into a public repository for no gain. Instead `tools/ingest_longmemeval.py`
+   fetches and converts, the output is git-ignored, and the manifest records
+   the upstream dataset revision, the converter's commit and the sha256 of the
+   file actually produced. Unlike Corpus A, this corpus **is** bit-reproducible
+   from a pinned upstream revision, and the README should say so — the two
+   corpora make opposite claims and a reader must not carry one over.
+3. **`longmemeval_oracle.json` is 15,388,478 bytes and holds only the answer
+   sessions.** Use it as the fast end-to-end smoke corpus: it exercises the
+   whole pipeline in minutes, and a retrieval score against it is meaningless
+   and must never be published as a result.
+
+Then **read the real dataset** and record its actual shape in the README: how a
+session, its turns and its `answer_session_ids` are keyed, whether `has_answer`
+is per-turn, how many questions carry more than one answer session, and how
+many are abstention questions. If the data disagrees with any of the above,
 stop and report rather than adapting the labels to fit.
 
 Map: one LongMemEval session becomes one `Conversation`; its `session_id`
