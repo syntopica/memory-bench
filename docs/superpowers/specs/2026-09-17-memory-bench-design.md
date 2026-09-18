@@ -206,9 +206,13 @@ Requirements that a seeded fact alone does not satisfy:
 - The `note` stratum either gets generated notes or is removed. Conversations
   alone do not support it.
 
-Strata follow `~/p/atrium/benchmarks/acceptance/README.md`: `es|en`,
-`conversation|note`, `overlap|no-overlap`, `recent|old`, plus the new
-**temporal-contradiction** class.
+The strata are five, and they are defined here rather than by reference, so
+this document does not depend on a private path no reader can open: language
+`es|en`; source shape `conversation|note`; whether the answer conversation
+shares vocabulary with competing ones, `overlap|no-overlap`; age within the
+corpus, `recent|old`; and the new **temporal-contradiction** class, where the
+corpus states a fact and later reverses it. They were taken from an earlier
+private acceptance set, which the definitions above now carry in full.
 
 **Statistical honesty.** 80 questions across four binary strata is roughly five
 per cell. Per-stratum results are reported as descriptive, with cell counts and
