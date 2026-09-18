@@ -57,6 +57,12 @@ def run_track_r(
     for question, evidence, full_sources, seconds in asked:
         sources = full_sources[:k]
         answer = question.answer_conversation_id
+        # A question the corpus marks unanswerable has no target conversation
+        # to rank against, so recall and reciprocal rank are unobserved here
+        # rather than a real zero - the same reasoning recall_at_depth already
+        # applies when a depth is deeper than the run's k. Scoring the
+        # deliberate absence itself, rather than leaving it unscored, is a
+        # policy decision for the metric that reads applicability, not this one.
         results.append(
             QuestionResult(
                 question_id=question.question_id,
@@ -65,10 +71,18 @@ def run_track_r(
                 applicability=applicability,
                 depth=k,
                 truncated=len(full_sources) > k,
-                recall_at_1=recall_at_depth(sources, answer, 1, k) if scorable else None,
-                recall_at_5=recall_at_depth(sources, answer, 5, k) if scorable else None,
-                recall_at_10=recall_at_depth(sources, answer, 10, k) if scorable else None,
-                reciprocal_rank=reciprocal_rank(sources, answer) if scorable else None,
+                recall_at_1=recall_at_depth(sources, answer, 1, k)
+                if scorable and answer is not None
+                else None,
+                recall_at_5=recall_at_depth(sources, answer, 5, k)
+                if scorable and answer is not None
+                else None,
+                recall_at_10=recall_at_depth(sources, answer, 10, k)
+                if scorable and answer is not None
+                else None,
+                reciprocal_rank=reciprocal_rank(sources, answer)
+                if scorable and answer is not None
+                else None,
                 seconds=seconds,
                 evidence_texts=tuple(hit.text for hit in evidence),
             )
