@@ -21,5 +21,10 @@ STRATA_VOCABULARY: dict[str, frozenset[str]] = {
     "age": frozenset({"recent", "old"}),
 }
 
-OPTIONAL_STRATUM_DIMENSION = "temporal contradiction"
 OPTIONAL_STRATUM_TAGS: frozenset[str] = frozenset({"temporal-contradiction"})
+"""The one dimension a question may leave out: the temporal-contradiction class.
+
+It is optional rather than a pair because it marks a property a question either
+has or does not - the corpus states a fact and later reverses it - where every
+other dimension partitions the questions in two.
+"""

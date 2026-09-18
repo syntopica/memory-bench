@@ -167,6 +167,13 @@ around it is gone.
   run never looked ten deep.
 - `reciprocal_rank`: `1 / rank` of the answer conversation within `depth`,
   `0.0` when it is absent from the observed ranking.
+
+  All four are also `null` for a question the corpus deliberately cannot
+  answer, which carries no answer conversation at all. That is a third reason
+  a cell is empty, and it is not the same as the other two: the run may have
+  looked as deep as it was asked to and the system may have provenance, and
+  the metric still has no target to be right or wrong about. Read a `null`
+  against `depth` and `applicability` before concluding which case it is.
 - `seconds`: Wall-clock duration of this single query.
 - `evidence_texts`: The evidence as returned, kept so a miss can be read. One
   entry per hit, not per slot, and not cut at `k`, so it is a different length
