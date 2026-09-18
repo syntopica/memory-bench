@@ -61,6 +61,50 @@ separate anything here. A corpus this benchmark reports recall@10 on has to be
 large enough for the number to mean something, and a saturated column is
 reported as saturated rather than as a tie.
 
+## Writing an adapter
+
+The contract is `membench/memory_adapter.py`, and it is the whole of what a
+system under test has to satisfy: `setup`, `ingest`, `query`, `teardown`, plus
+the construction rules in `ADAPTER_CONTRACT_VERSION` above them. Read it
+before writing code; the docstrings there are normative in a way this section
+is not.
+
+**Registration is unbuilt.** There is no plugin mechanism today: the harness
+constructs adapters from `ADAPTERS`, a hard-coded dict in
+`membench/build_adapter.py`, so a foreign adapter reaches the harness by
+adding an entry to that dict in a fork or a patch. That is the honest state,
+not a recommendation — what the mechanism should be is a design decision worth
+making with two real adapters in hand rather than one. `TODO.md` records it.
+
+What the harness requires of an adapter beyond the method signatures:
+
+- **Construction.** The constructor must be bindable by
+  `inspect.signature(...).bind(workspace, **options)`: the workspace `Path`
+  first, then every option from `--adapter-options` as a named parameter. The
+  binding is checked before anything is written, and an option the constructor
+  does not accept is a hard failure rather than an ignored setting — a
+  manifest that lists a setting which had no effect describes a run that did
+  not happen. Options must be JSON-representable, since they are read from a
+  JSON file and recorded verbatim in the manifest.
+- **The workspace.** The adapter owns `<out>/workspace/`, exclusively, and
+  creates nothing outside it. The harness creates the directory before
+  constructing the adapter, and never writes inside it: the run's frozen
+  artifacts land in the parent.
+- **Source ids.** `source_ids` are matched **verbatim** against the corpus
+  `conversation_id`. Exactly one leading `synthesis/` is forgiven, for systems
+  that namespace derived records; nothing else is normalised — not case, not
+  whitespace, not any other namespace. An id that does not match after that
+  one removal is scored as a miss.
+- **The `k` slot rule.** `k` bounds ranked source conversations, not pieces of
+  evidence: each distinct conversation id spends one slot in the order given,
+  deduplicated across the ranking, an unsourced hit spends one too, and
+  everything past the k-th slot is discarded before scoring. Cite the
+  conversations that actually support a memory, best first — a shotgun
+  citation buys nothing and can push the real answer out of the budget.
+- **Teardown.** It is called once however the run ends, including after a
+  failure part-way through ingest, so it must tolerate a system that was never
+  fully set up.
+
 ## The token budget, and what a token is
 
 Track A gives every system in a run the same text budget, and the budget is
