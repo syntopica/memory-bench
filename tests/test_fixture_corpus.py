@@ -12,7 +12,8 @@ def test_every_question_points_at_a_conversation_in_the_corpus():
         conversation.conversation_id for conversation in load_corpus(FIXTURE / "corpus.jsonl")
     }
     for question in load_questions(FIXTURE / "questions.jsonl"):
-        assert question.answer_conversation_id in corpus_ids
+        assert question.answer_conversation_ids
+        assert set(question.answer_conversation_ids) <= corpus_ids
 
 
 def test_the_fixture_holds_a_reversal_pair():
@@ -73,7 +74,8 @@ def test_the_no_overlap_question_shares_no_content_word_with_its_answer():
     for question in load_questions(FIXTURE / "questions.jsonl"):
         if "no-overlap" not in question.strata:
             continue
-        answer = corpus[question.answer_conversation_id]
-        shared = _content_words(question.question) & _content_words(answer.body)
-        msg = f"{question.question_id} shares {sorted(shared)} with {answer.conversation_id}"
-        assert shared == set(), msg
+        for answer_id in question.answer_conversation_ids:
+            answer = corpus[answer_id]
+            shared = _content_words(question.question) & _content_words(answer.body)
+            msg = f"{question.question_id} shares {sorted(shared)} with {answer.conversation_id}"
+            assert shared == set(), msg

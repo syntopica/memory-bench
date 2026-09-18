@@ -40,7 +40,7 @@ def _question() -> Question:
     return Question(
         question_id="q1",
         question="por que se revirtio WAL",
-        answer_conversation_id="c5",
+        answer_conversation_ids=("c5",),
         strata=("es", "no-overlap"),
     )
 
@@ -57,23 +57,23 @@ def _evidence(conversation_id: str) -> Evidence:
 def test_a_first_place_hit_scores_one_everywhere():
     adapter = _StubAdapter([_evidence("c5"), _evidence("c1")])
     result = run_track_r(adapter, [_question()])[0]
-    assert result.recall_at_1 == 1.0
-    assert result.recall_at_10 == 1.0
+    assert result.recall_any_at_1 == 1.0
+    assert result.recall_any_at_10 == 1.0
     assert result.reciprocal_rank == 1.0
 
 
-def test_a_second_place_hit_misses_recall_at_1():
+def test_a_second_place_hit_misses_recall_any_at_1():
     adapter = _StubAdapter([_evidence("c1"), _evidence("c5")])
     result = run_track_r(adapter, [_question()])[0]
-    assert result.recall_at_1 == 0.0
-    assert result.recall_at_5 == 1.0
+    assert result.recall_any_at_1 == 0.0
+    assert result.recall_any_at_5 == 1.0
     assert result.reciprocal_rank == 0.5
 
 
 def test_a_miss_scores_zero_and_still_records_what_came_back():
     adapter = _StubAdapter([_evidence("c1")])
     result = run_track_r(adapter, [_question()])[0]
-    assert result.recall_at_10 == 0.0
+    assert result.recall_any_at_10 == 0.0
     assert result.ranked_sources == ("c1",)
     assert result.evidence_texts == ("body of c1",)
 
@@ -100,25 +100,25 @@ def test_ranked_sources_are_truncated_to_k():
     )
     result = run_track_r(_StubAdapter([crowded]), [_question()], k=3)[0]
     assert result.ranked_sources == ("c1", "c2", "c3")
-    assert result.recall_at_1 == 0.0
+    assert result.recall_any_at_1 == 0.0
 
 
 def test_a_depth_beyond_k_is_null_rather_than_a_miss():
     adapter = _StubAdapter([_evidence("c1"), _evidence("c2")])
     result = run_track_r(adapter, [_question()], k=2)[0]
     assert result.depth == 2
-    assert result.recall_at_1 == 0.0
-    assert result.recall_at_5 is None
-    assert result.recall_at_10 is None
+    assert result.recall_any_at_1 == 0.0
+    assert result.recall_any_at_5 is None
+    assert result.recall_any_at_10 is None
 
 
 def test_the_default_depth_is_ten_and_scores_every_column():
     adapter = _StubAdapter([_evidence("c5")])
     result = run_track_r(adapter, [_question()])[0]
     assert result.depth == 10
-    assert result.recall_at_1 == 1.0
-    assert result.recall_at_5 == 1.0
-    assert result.recall_at_10 == 1.0
+    assert result.recall_any_at_1 == 1.0
+    assert result.recall_any_at_5 == 1.0
+    assert result.recall_any_at_10 == 1.0
 
 
 def _no_provenance() -> Evidence:
@@ -136,22 +136,22 @@ def test_a_run_that_returned_nothing_at_all_is_scored_the_misses_it_made():
     """
     result = run_track_r(_StubAdapter([]), [_question()])[0]
     assert result.applicability == "scored"
-    assert result.recall_at_1 == 0.0
+    assert result.recall_any_at_1 == 0.0
     assert result.reciprocal_rank == 0.0
 
 
 def test_a_system_with_provenance_is_scored():
     result = run_track_r(_StubAdapter([_evidence("c5")]), [_question()])[0]
     assert result.applicability == "scored"
-    assert result.recall_at_1 == 1.0
+    assert result.recall_any_at_1 == 1.0
 
 
 def test_a_system_without_provenance_is_not_applicable_rather_than_wrong():
     result = run_track_r(_StubAdapter([_no_provenance()]), [_question()])[0]
     assert result.applicability == "not_applicable"
-    assert result.recall_at_1 is None
-    assert result.recall_at_5 is None
-    assert result.recall_at_10 is None
+    assert result.recall_any_at_1 is None
+    assert result.recall_any_at_5 is None
+    assert result.recall_any_at_10 is None
     assert result.reciprocal_rank is None
     assert result.evidence_texts == ("a memory I wrote myself",)
 
@@ -177,7 +177,7 @@ def test_unsourced_hits_above_the_answer_cost_the_system_its_rank():
             Evidence(text="the answer", native_id="e3", source_ids=("c1",), timestamp=None),
         ]
     )
-    question = Question(question_id="q1", question="?", answer_conversation_id="c1", strata=())
+    question = Question(question_id="q1", question="?", answer_conversation_ids=("c1",), strata=())
 
     wrong = run_track_r(wrong_first, [question], 10)[0]
     unsourced = run_track_r(unsourced_first, [question], 10)[0]
@@ -203,12 +203,12 @@ def test_provenance_past_the_requested_depth_still_scores_the_system():
             Evidence(text="the answer", native_id="e3", source_ids=("c1",), timestamp=None),
         ]
     )
-    question = Question(question_id="q1", question="?", answer_conversation_id="c1", strata=())
+    question = Question(question_id="q1", question="?", answer_conversation_ids=("c1",), strata=())
 
     result = run_track_r(adapter, [question], k=2)[0]
 
     assert result.applicability == "scored"
-    assert result.recall_at_1 == 0.0
+    assert result.recall_any_at_1 == 0.0
     assert result.reciprocal_rank == 0.0
     assert result.ranked_sources == (None, None)
 
@@ -224,7 +224,7 @@ def test_a_cut_ranking_says_it_was_cut():
             )
         ]
     )
-    question = Question(question_id="q1", question="?", answer_conversation_id="c1", strata=())
+    question = Question(question_id="q1", question="?", answer_conversation_ids=("c1",), strata=())
 
     result = run_track_r(adapter, [question], 2)[0]
 
@@ -236,7 +236,7 @@ def test_a_ranking_that_fits_says_it_was_not_cut():
     adapter = _StubAdapter(
         [Evidence(text="one", native_id="e1", source_ids=("c1",), timestamp=None)]
     )
-    question = Question(question_id="q1", question="?", answer_conversation_id="c1", strata=())
+    question = Question(question_id="q1", question="?", answer_conversation_ids=("c1",), strata=())
 
     result = run_track_r(adapter, [question], 10)[0]
 
@@ -259,7 +259,7 @@ def _labelled(question_id: str, answer: str) -> Question:
     return Question(
         question_id=question_id,
         question=question_id,
-        answer_conversation_id=answer,
+        answer_conversation_ids=(answer,),
         strata=(),
     )
 
@@ -271,9 +271,9 @@ def test_an_unsourced_answer_scores_zero_when_the_run_has_provenance():
     results = run_track_r(adapter, [_labelled("q1", "c1"), _labelled("q2", "c2")])
 
     assert [result.applicability for result in results] == ["scored", "scored"]
-    assert results[1].recall_at_1 == 0.0
-    assert results[1].recall_at_5 == 0.0
-    assert results[1].recall_at_10 == 0.0
+    assert results[1].recall_any_at_1 == 0.0
+    assert results[1].recall_any_at_5 == 0.0
+    assert results[1].recall_any_at_10 == 0.0
     assert results[1].reciprocal_rank == 0.0
 
 
@@ -285,9 +285,12 @@ def test_a_run_without_any_provenance_is_not_applicable_on_every_row():
 
     assert [result.applicability for result in results] == ["not_applicable", "not_applicable"]
     assert metric_means(results) == {
-        "recall_at_1": None,
-        "recall_at_5": None,
-        "recall_at_10": None,
+        "recall_any_at_1": None,
+        "recall_any_at_5": None,
+        "recall_any_at_10": None,
+        "recall_all_at_1": None,
+        "recall_all_at_5": None,
+        "recall_all_at_10": None,
         "reciprocal_rank": None,
     }
 
@@ -318,7 +321,7 @@ def test_stripping_provenance_on_the_questions_it_loses_buys_a_system_nothing():
     exploiting = run_track_r(_PerQuestionAdapter(wins | stripped), questions)
 
     assert metric_means(honest) == metric_means(exploiting)
-    assert metric_means(exploiting)["recall_at_1"] == pytest.approx(0.4)
+    assert metric_means(exploiting)["recall_any_at_1"] == pytest.approx(0.4)
     assert all(result.applicability == "scored" for result in exploiting)
 
 
@@ -350,11 +353,59 @@ def test_an_unanswerable_question_scores_no_metric_and_never_false_matches():
     question = Question(
         question_id="qx",
         question="algo que el corpus no responde",
-        answer_conversation_id=None,
+        answer_conversation_ids=(),
         strata=("es", "conversation", "no-overlap", "recent"),
     )
     result = run_track_r(_StubAdapter([_no_provenance()]), [question])[0]
-    assert result.recall_at_1 is None
-    assert result.recall_at_5 is None
-    assert result.recall_at_10 is None
+    assert result.recall_any_at_1 is None
+    assert result.recall_any_at_5 is None
+    assert result.recall_any_at_10 is None
     assert result.reciprocal_rank is None
+
+
+def _multi_label() -> Question:
+    return Question(
+        question_id="qm",
+        question="what did we settle across both threads",
+        answer_conversation_ids=("c1", "c3"),
+        strata=(),
+    )
+
+
+def test_any_and_all_measure_different_things_on_a_multi_label_question():
+    """The reason the two recalls are published side by side and never merged.
+
+    Both labelled conversations are in the ranking, but only one of them is
+    inside the top two. A system that surfaced one of the two conversations a
+    multi-hop question needs has found a way in and has not found the answer;
+    reporting only `any` would call that a hit, and reporting only `all` would
+    call it a total failure. It is neither, and the run says so twice.
+    """
+    adapter = _StubAdapter([_evidence("c1"), _evidence("c2"), _evidence("c3")])
+
+    result = run_track_r(adapter, [_multi_label()], k=10)[0]
+
+    assert result.recall_any_at_1 == 1.0
+    assert result.recall_all_at_1 == 0.0
+    assert result.recall_any_at_5 == 1.0
+    assert result.recall_all_at_5 == 1.0
+
+
+def test_reciprocal_rank_measures_the_best_ranked_label():
+    adapter = _StubAdapter([_evidence("c1"), _evidence("c2"), _evidence("c3")])
+    result = run_track_r(adapter, [_multi_label()], k=10)[0]
+    assert result.reciprocal_rank == 1.0
+
+
+def test_a_single_label_question_scores_any_and_all_identically():
+    """Why widening the label moved no published number.
+
+    With one labelled conversation, "at least one is within k" and "every one
+    is within k" are the same statement, so every result this harness had
+    already published stays exactly where it was.
+    """
+    adapter = _StubAdapter([_evidence("c1"), _evidence("c5")])
+    result = run_track_r(adapter, [_question()], k=10)[0]
+    assert result.recall_any_at_1 == result.recall_all_at_1 == 0.0
+    assert result.recall_any_at_5 == result.recall_all_at_5 == 1.0
+    assert result.recall_any_at_10 == result.recall_all_at_10 == 1.0

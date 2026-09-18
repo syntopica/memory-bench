@@ -23,6 +23,11 @@ class QuestionResult:
             the zeros it earned. Within a scored run there is no exclusion: a
             response that carried no provenance scores the misses it earned,
             exactly as returning nothing does.
+        answerable: False exactly when the corpus deliberately cannot answer
+            this question - its label set is empty. It is a property of the
+            question, not of the system, so it is identical across every
+            system measured on the same set. Every metric below is None on an
+            unanswerable row: undefined, not unobserved and not a miss.
         depth: The `k` this run requested and observed. Every metric below is
             measured at that depth and means nothing without it.
         truncated: True when the system offered more slots than `k` and the
@@ -32,18 +37,37 @@ class QuestionResult:
             a token budget cut the ranking too, and this field still says
             False. Track R passes no budget, so today the two cannot be
             confused; Track A will need a signal that says which cut fired.
-        recall_at_1: 1.0 when the answer conversation ranked first.
-        recall_at_5: 1.0 when it appeared in the first five, None when the run
-            never looked five deep.
-        recall_at_10: 1.0 when it appeared in the first ten, None when the run
-            never looked ten deep.
-        reciprocal_rank: 1/rank of the answer conversation within `depth`, 0.0
-            when it is absent from the observed ranking. This is RR at `depth`:
-            a miss inside an observed depth is a real zero for that metric, and
-            `depth` is recorded so it is never read as RR at full depth.
-            All four metrics are additionally None for a question the corpus
-            deliberately cannot answer: there is no target conversation, so
-            the metric is undefined rather than unobserved or missed.
+        recall_any_at_1: 1.0 when at least one labelled conversation ranked
+            first.
+        recall_any_at_5: 1.0 when at least one appeared in the first five,
+            None when the run never looked five deep.
+        recall_any_at_10: 1.0 when at least one appeared in the first ten,
+            None when the run never looked ten deep.
+        recall_all_at_1: 1.0 when every labelled conversation is within the
+            first slot, which only a single-label question can be.
+        recall_all_at_5: 1.0 when every labelled conversation appeared in the
+            first five, None when the run never looked five deep.
+        recall_all_at_10: 1.0 when every labelled conversation appeared in the
+            first ten, None when the run never looked ten deep.
+            `recall_any_*` and `recall_all_*` are reported side by side and
+            are never averaged together: a question answered by three
+            conversations, one of which was found, is a hit for the first and
+            a miss for the second, and it is neither of those things alone.
+            With a single labelled conversation the two coincide by
+            construction.
+        reciprocal_rank: 1/rank of the **best-ranked** labelled conversation
+            within `depth`, 0.0 when none of them is in the observed ranking.
+            Best-ranked is the published rule; the worst-ranked one is a
+            different measurement, and choosing between them silently would
+            change every published number without a version saying so. This is
+            RR at `depth`: a miss inside an observed depth is a real zero for
+            this metric, and `depth` is recorded so it is never read as RR at
+            full depth.
+        abstained: True when the system returned nothing at all for this
+            question, False when it returned something, and None on an
+            answerable row, where the question does not arise. Returning
+            evidence that names no source is not abstaining: the system
+            answered, and it answered without provenance.
         seconds: Wall-clock duration of this single query.
         evidence_texts: The evidence as returned, kept so a miss can be read.
             One entry per hit, not per slot, and not cut at `k`: it is
@@ -58,11 +82,16 @@ class QuestionResult:
     strata: tuple[str, ...]
     ranked_sources: tuple[str | None, ...]
     applicability: str
+    answerable: bool
     depth: int
     truncated: bool
-    recall_at_1: float | None
-    recall_at_5: float | None
-    recall_at_10: float | None
+    recall_any_at_1: float | None
+    recall_any_at_5: float | None
+    recall_any_at_10: float | None
+    recall_all_at_1: float | None
+    recall_all_at_5: float | None
+    recall_all_at_10: float | None
     reciprocal_rank: float | None
+    abstained: bool | None
     seconds: float
     evidence_texts: tuple[str, ...]

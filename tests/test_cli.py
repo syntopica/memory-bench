@@ -28,7 +28,7 @@ def test_a_baseline_run_over_the_fixture_produces_scores(tmp_path: Path):
     assert exit_code == 0
     lines = (out / "raw.jsonl").read_text(encoding="utf-8").strip().splitlines()
     assert len(lines) == 6
-    recalls = [json.loads(line)["recall_at_10"] for line in lines]
+    recalls = [json.loads(line)["recall_any_at_10"] for line in lines]
     assert sum(recalls) > 0
     assert (out / "workspace" / "index.db").exists()
 
@@ -136,22 +136,22 @@ def test_a_shallow_k_publishes_no_number_under_a_deeper_name(tmp_path: Path):
         json.loads(line) for line in (out / "raw.jsonl").read_text(encoding="utf-8").splitlines()
     ]
     assert all(row["depth"] == 2 for row in rows)
-    assert all(row["recall_at_5"] is None for row in rows)
-    assert all(row["recall_at_10"] is None for row in rows)
-    assert all(isinstance(row["recall_at_1"], float) for row in rows)
+    assert all(row["recall_any_at_5"] is None for row in rows)
+    assert all(row["recall_any_at_10"] is None for row in rows)
+    assert all(isinstance(row["recall_any_at_1"], float) for row in rows)
 
 
 def test_the_run_reports_its_means_and_what_it_excluded(tmp_path: Path, capsys):
     assert _run(tmp_path / "run") == 0
     printed = capsys.readouterr().out
-    assert "recall_at_1@k=10:" in printed
+    assert "recall_any_at_1@k=10:" in printed
     assert "0 excluded as not applicable to Track R" in printed
 
 
 def test_a_metric_the_run_never_observed_is_reported_as_unavailable(tmp_path: Path, capsys):
     assert _run(tmp_path / "run", **{"--k": "2"}) == 0
     printed = capsys.readouterr().out
-    assert "recall_at_10@k=2: n/a" in printed
+    assert "recall_any_at_10@k=2: n/a" in printed
 
 
 def test_missing_adapter_options_file_exits_2_and_writes_nothing(tmp_path: Path):
@@ -339,3 +339,40 @@ def test_a_run_that_fails_during_ingest_still_tears_the_adapter_down(
         _run(tmp_path / "run", **{"--adapter": "failing_ingest"})
 
     assert _FailingIngestAdapter.torn_down is True
+
+
+def test_a_run_over_unanswerable_questions_reports_them_outside_the_metrics(tmp_path: Path, capsys):
+    """The abstention line is printed, counted, and kept out of the metric block.
+
+    The lexical baseline returns something for every query, so it abstains on
+    nothing: `0.0000` here is an observed rate over a real denominator, and it
+    sits on its own line rather than among the means it must never be averaged
+    with.
+    """
+    questions = tmp_path / "questions.jsonl"
+    questions.write_text(
+        '{"question_id": "u1", "question": "quien firmo el contrato de alquiler",'
+        ' "answer_conversation_ids": [], "strata": ["es", "conversation",'
+        ' "no-overlap", "recent"]}\n'
+        '{"question_id": "a1", "question": "why did the deploy pipeline fail in February",'
+        ' "answer_conversation_ids": ["c2"], "strata": ["en", "conversation",'
+        ' "overlap", "old"]}\n',
+        encoding="utf-8",
+    )
+    out = tmp_path / "run"
+
+    assert _run(out, **{"--questions": str(questions)}) == 0
+
+    printed = capsys.readouterr().out
+    assert "abstention: 0.0000 over 1 unanswerable question\n" in printed
+    assert "scored 1 of 1 answerable questions" in printed
+    rows = {
+        json.loads(line)["question_id"]: json.loads(line)
+        for line in (out / "raw.jsonl").read_text(encoding="utf-8").splitlines()
+    }
+    assert rows["u1"]["answerable"] is False
+    assert rows["u1"]["abstained"] is False
+    assert rows["u1"]["recall_any_at_1"] is None
+    assert rows["u1"]["recall_all_at_1"] is None
+    assert rows["a1"]["answerable"] is True
+    assert rows["a1"]["abstained"] is None
