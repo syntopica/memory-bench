@@ -2,7 +2,7 @@ import sqlite3
 from datetime import UTC, datetime
 from pathlib import Path
 
-from membench.build_manifest import build_manifest
+from membench.build_manifest import MANIFEST_VERSION, build_manifest
 from membench.memory_adapter import ADAPTER_CONTRACT_VERSION
 from membench.write_run import RAW_SCHEMA_VERSION
 
@@ -63,6 +63,7 @@ def test_the_manifest_records_the_versions_of_both_published_artifacts(tmp_path:
     )
     assert manifest["raw_schema_version"] == RAW_SCHEMA_VERSION
     assert manifest["adapter_contract_version"] == ADAPTER_CONTRACT_VERSION
+    assert manifest["manifest_version"] == MANIFEST_VERSION
 
 
 def test_the_manifest_records_the_sqlite_build_that_ran(tmp_path: Path):

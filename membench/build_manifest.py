@@ -14,6 +14,24 @@ from membench.sha256_file import sha256_file
 from membench.write_run import RAW_SCHEMA_VERSION
 
 
+MANIFEST_VERSION = "1.0"
+"""Version of the manifest object below, written into every manifest.
+
+The manifest travels the way a raw row does: it is read by tools this
+repository does not own, long after the run directory was produced, and a
+reader has to know which shape they are holding. The major part is raised
+whenever a field changes meaning, is removed, or becomes newly nullable; an
+added field raises the minor part - the same rule `raw_schema_version` and
+`adapter_contract_version` carry.
+
+1.0 is where this starts rather than a bump from an implicit earlier version.
+The shape gained five top-level keys before any of this was published, so
+there is no manifest in anyone's hands that this field would be dating; a 2.0
+here would imply a 1.0 that no reader can ever meet. The number begins at the
+first shape that ships.
+"""
+
+
 def build_manifest(
     *,
     run_id: str,
@@ -26,7 +44,11 @@ def build_manifest(
 ) -> dict[str, object]:
     """Return the manifest that pins a run's inputs and lets it be reproduced.
 
-    A command line does not say which bytes were read, so the corpus and the
+    The manifest carries three version fields, and they answer different
+    questions: `manifest_version` is the shape of this object, `raw_schema_version`
+    the shape of one `raw.jsonl` row beside it, and `adapter_contract_version`
+    the contract the measured system implemented. A command line does not say
+    which bytes were read, so the corpus and the
     question set are hashed. The SQLite version is recorded because the
     baseline's tokenizer behaviour is a property of the build that ran it, and
     a lexical floor that moved between two machines must be visible here.
@@ -56,6 +78,7 @@ def build_manifest(
     return {
         "run_id": run_id,
         "track": "R: source discovery",
+        "manifest_version": MANIFEST_VERSION,
         "raw_schema_version": RAW_SCHEMA_VERSION,
         "adapter_contract_version": ADAPTER_CONTRACT_VERSION,
         "sqlite_version": sqlite3.sqlite_version,
