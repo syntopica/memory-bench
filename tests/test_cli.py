@@ -307,3 +307,35 @@ def test_the_written_manifest_carries_the_cli_s_options_unchanged(
     assert exit_code == 0
     manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["adapter_options"] == given_options
+
+
+class _FailingIngestAdapter:
+    """An adapter whose ingest fails, recording whether it was torn down."""
+
+    torn_down = False
+
+    def __init__(self, workspace: Path) -> None:
+        self.workspace = workspace
+
+    def setup(self) -> None: ...
+
+    def ingest(self, corpus):
+        raise RuntimeError("the store rejected the corpus")
+
+    def query(self, question: str, k: int, token_budget: int | None):
+        return []
+
+    def teardown(self) -> None:
+        type(self).torn_down = True
+
+
+def test_a_run_that_fails_during_ingest_still_tears_the_adapter_down(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    monkeypatch.setitem(ADAPTERS, "failing_ingest", _FailingIngestAdapter)
+    _FailingIngestAdapter.torn_down = False
+
+    with pytest.raises(RuntimeError, match="the store rejected the corpus"):
+        _run(tmp_path / "run", **{"--adapter": "failing_ingest"})
+
+    assert _FailingIngestAdapter.torn_down is True

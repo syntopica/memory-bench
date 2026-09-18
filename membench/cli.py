@@ -7,6 +7,7 @@ from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 
+from membench.adapter_lifecycle import adapter_lifecycle
 from membench.build_adapter import ADAPTERS, build_adapter
 from membench.build_manifest import build_manifest
 from membench.load_corpus import load_corpus
@@ -73,10 +74,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     workspace.mkdir(parents=True, exist_ok=True)
     adapter = build_adapter(args.adapter, workspace, options)
     started_at = datetime.now(UTC)
-    adapter.setup()
-    ingest = adapter.ingest(load_corpus(args.corpus))
-    results = run_track_r(adapter, load_questions(args.questions), args.k)
-    adapter.teardown()
+    with adapter_lifecycle(adapter):
+        adapter.setup()
+        ingest = adapter.ingest(load_corpus(args.corpus))
+        results = run_track_r(adapter, load_questions(args.questions), args.k)
 
     manifest = build_manifest(
         run_id=args.out.name,
