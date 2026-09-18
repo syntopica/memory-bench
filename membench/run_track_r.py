@@ -25,8 +25,9 @@ def run_track_r(
     Every question is asked before any of them is scored, because
     applicability is decided once for the whole run rather than per response.
     A system that cited a conversation on any question is scored on all of
-    them; only a system that produced no source id anywhere is excluded, and
-    then entirely. `run_applicability` holds the reasoning.
+    them; only a system whose evidence named no source on any question is
+    excluded, and then entirely. Returning nothing is not that: it is a search
+    that failed, and it is scored. `run_applicability` holds the reasoning.
 
     Args:
         adapter: The system under test, already set up and ingested.

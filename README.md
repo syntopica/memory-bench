@@ -140,13 +140,17 @@ around it is gone.
 - `strata`: The question's tags, for descriptive breakdowns only.
 - `ranked_sources`: One entry per slot the system spent, best first; `null`
   marks a slot spent by evidence that carried no source conversation.
-- `applicability`: `"scored"`, or `"not_applicable"` when the system produced
-  no source conversation anywhere in the **whole run**, which leaves the three
-  recalls and `reciprocal_rank` `null`. It is a property of the system, not of
-  one answer, so every row of a run carries the same value: there is no mixed
-  run, and a response that came back without provenance scores the misses it
-  earned rather than leaving the denominator. `depth` and `truncated` are
-  still reported: they describe the request and the ranking, not the score.
+- `applicability`: `"scored"`, or `"not_applicable"` when the system returned
+  evidence and none of it, on any question in the **whole run**, carried a
+  source conversation - which leaves the three recalls and `reciprocal_rank`
+  `null`. It is a property of the system, not of one answer, so every row of a
+  run carries the same value: there is no mixed run, and a response that came
+  back without provenance scores the misses it earned rather than leaving the
+  denominator. The exemption is architectural, for memories that cannot name a
+  source, so it takes evidence to earn: a system that returned nothing at all
+  searched and failed every time, and is scored the zeros that records.
+  `depth` and `truncated` are still reported: they describe the request and
+  the ranking, not the score.
 - `depth`: The `k` this run requested and observed; the three recalls and
   `reciprocal_rank` are measured at that depth and mean nothing without it.
 - `truncated`: `true` when the system offered more slots than `k` and the
