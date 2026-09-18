@@ -127,11 +127,55 @@ digests.**
    whole pipeline in minutes, and a retrieval score against it is meaningless
    and must never be published as a result.
 
-Then **read the real dataset** and record its actual shape in the README: how a
-session, its turns and its `answer_session_ids` are keyed, whether `has_answer`
-is per-turn, how many questions carry more than one answer session, and how
-many are abstention questions. If the data disagrees with any of the above,
-stop and report rather than adapting the labels to fit.
+**The shape was then read from `longmemeval_oracle.json` on 2026-09-18 and is
+recorded here. Verify each number against the `_s` release you actually
+convert; the oracle holds only the answer sessions, so counts of haystack
+sessions will differ and counts of questions and labels should not.**
+
+An instance carries `question_id`, `question_type`, `question`, `answer`,
+`question_date`, `haystack_dates`, `haystack_session_ids`, `haystack_sessions`
+and `answer_session_ids`. A turn carries `role`, `content` and `has_answer`.
+There are 500 instances.
+
+1. **324 of the 500 questions carry more than one answer session** — 2 for 250,
+   3 for 41, 4 for 19, 5 for 11, 6 for 3; only 176 are single-label. The
+   set-valued label was not a nicety: a single-label harness would have dropped
+   65% of this benchmark, and the dropped 65% are the multi-session ones.
+2. **The abstention questions are NOT unanswerable questions, and mapping them
+   to one would corrupt both populations.** The 30 ids ending `_abs` each carry
+   real `answer_session_ids` (1 to 4 of them). Their `answer` is of the form
+   "The information provided is not enough. You mentioned fixing the fence but
+   did not mention purchasing cows from Peter." The sessions holding that
+   partial information are labelled and a system *should* find them. Abstention
+   there is a property of what a model says, which is Track A; for Track R
+   these are ordinary answerable questions. Map them as such, and tag them so
+   Track A can find them later. **LongMemEval contains no instance of this
+   harness's unanswerable question** — that concept exists for Corpus A, and
+   `abstention_rate` will correctly report `n/a` on this corpus.
+3. **Haystacks may be unioned into one corpus.** Across the oracle's 500
+   instances there are 948 session ids and 940 distinct ones; every one of the
+   8 repeats carries byte-identical content, verified by hashing. Assert this
+   again on the `_s` release before unioning — if a repeated id ever carries
+   different content, unioning silently corrupts a label and the converter must
+   fail rather than pick one.
+4. **`question_date` is the `as_of` field** the sibling plan's Task 1 added.
+   Carry it across.
+5. **`question_type` supplies six native categories**: `temporal-reasoning`
+   133, `multi-session` 133, `knowledge-update` 78, `single-session-user` 70,
+   `single-session-assistant` 56, `single-session-preference` 30. Carry the
+   type verbatim as a stratum tag — it is the dataset's own labelling and is
+   better evidence than anything derived here. `knowledge-update` is this
+   corpus's temporal-contradiction class; tag those with
+   `temporal-contradiction` as well, and say in the README that the mapping is
+   an interpretation of someone else's label rather than a label of ours.
+
+Note that these six types are not the harness's four required dimensions, so
+`validate_strata` must be extended to admit a `longmemeval-*` namespace, or the
+converter must supply the four required dimensions too. Decide and say which;
+do not fabricate a dimension the data does not support.
+
+If the `_s` release disagrees with any of the above, stop and report rather
+than adapting the labels to fit.
 
 Map: one LongMemEval session becomes one `Conversation`; its `session_id`
 becomes `conversation_id`; its turns become `Message`s. One question becomes a
