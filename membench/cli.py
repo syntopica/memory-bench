@@ -82,6 +82,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         corpus_path=args.corpus,
         questions_path=args.questions,
         k=args.k,
+        adapter_options=options,
     )
     write_run(args.out, manifest, results, ingest)
     print(f"wrote {args.out}/raw.jsonl and {args.out}/manifest.json")

@@ -24,14 +24,13 @@ judged not to block it.
   beside it is the real identity; the label is merely shorter than it should
   be.
 
-- [ ] **A manifest identifies a run's inputs but not its environment.** It
-  pins the corpus and question digests, the adapter, `k`, the SQLite version
-  and both schema versions. It does not record when the run happened, which
-  commit of this harness produced it, or the Python, OS and dependency
-  versions underneath. That is enough to identify a run and re-run the
-  lexical baseline; it is not enough for a third party to reproduce one. The
-  gap matters from the moment a second adapter exists, because that is when
-  the dependency set starts to vary.
+- [ ] **The manifest does not yet pin prompts or requested and resolved
+  models.** It now records when the run happened, which harness commit
+  produced it, the Python and platform versions, the dependency lock's digest
+  and the adapter options applied verbatim, alongside the corpus and question
+  digests, `k`, the adapter name and the SQLite version. What is still missing
+  is the prompts issued and the models requested and resolved, which arrive
+  with the model gateway.
 
 - [ ] **`raw.jsonl` does not say whether `ranked_sources` was truncated.** It
   is cut at `k` with no signal, so a reader cannot distinguish "the system
