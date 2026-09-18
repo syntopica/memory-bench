@@ -20,10 +20,13 @@ ignore = ["D203", "D213", "E501", "D107"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["D", "S101", "ARG", "PLR2004"]
-# The manifest's six fields are the reproduction inputs the design record
+# The manifest's seven fields are the reproduction inputs the design record
 # requires; a wrapper type for one call site would hide them rather than
-# simplify anything.
-"membench/build_manifest.py" = ["PLR0913", "PLR0917"]
+# simplify anything. The parameters are keyword-only, so every call site
+# already names them and PLR0917 (too many positional arguments) does not
+# fire. Drop this ignore when the gateway plan adds its first field: group
+# the pinned inputs into a frozen ReproductionInputs dataclass instead.
+"membench/build_manifest.py" = ["PLR0913"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

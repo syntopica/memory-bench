@@ -11,7 +11,11 @@ def dependency_lock() -> dict[str, str]:
     """Return `uv.lock`'s identity, or admit that it is not present.
 
     The lock is resolved relative to this package's parent, not the working
-    directory, because an installed wheel has no lock file beside it.
+    directory, because an installed wheel has no lock file beside it. The
+    digest is taken from the lock file on disk at the moment the run happens,
+    so an environment installed from a stale lock still records the lock
+    currently sitting there, not necessarily the one its packages were
+    actually built against.
 
     Returns:
         `{"path": "uv.lock", "sha256": <digest>}`, or `{"path": "uv.lock",

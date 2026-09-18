@@ -4,6 +4,7 @@ import argparse
 import inspect
 import sys
 from collections.abc import Sequence
+from datetime import UTC, datetime
 from pathlib import Path
 
 from membench.build_adapter import ADAPTERS, build_adapter
@@ -71,6 +72,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     workspace.mkdir(parents=True, exist_ok=True)
     adapter = build_adapter(args.adapter, workspace, options)
+    started_at = datetime.now(UTC)
     adapter.setup()
     ingest = adapter.ingest(load_corpus(args.corpus))
     results = run_track_r(adapter, load_questions(args.questions), args.k)
@@ -83,6 +85,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         questions_path=args.questions,
         k=args.k,
         adapter_options=options,
+        started_at=started_at,
     )
     write_run(args.out, manifest, results, ingest)
     print(f"wrote {args.out}/raw.jsonl and {args.out}/manifest.json")

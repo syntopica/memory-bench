@@ -3,7 +3,7 @@
 import platform
 import sqlite3
 from collections.abc import Mapping
-from datetime import UTC, datetime
+from datetime import datetime
 from pathlib import Path
 
 from membench.dependency_lock import dependency_lock
@@ -15,12 +15,14 @@ from membench.write_run import RAW_SCHEMA_VERSION
 
 
 def build_manifest(
+    *,
     run_id: str,
     adapter_name: str,
     corpus_path: Path,
     questions_path: Path,
     k: int,
     adapter_options: Mapping[str, object],
+    started_at: datetime,
 ) -> dict[str, object]:
     """Return the manifest that pins a run's inputs and lets it be reproduced.
 
@@ -28,7 +30,7 @@ def build_manifest(
     question set are hashed. The SQLite version is recorded because the
     baseline's tokenizer behaviour is a property of the build that ran it, and
     a lexical floor that moved between two machines must be visible here.
-    When the run happened, which harness commit produced it, the interpreter
+    When the run started, which harness commit produced it, the interpreter
     and platform underneath, the dependency lock in effect and the options
     given to the adapter are recorded alongside them, because those are what a
     second adapter starts to vary. Reproducing the report from frozen
@@ -43,9 +45,13 @@ def build_manifest(
         k: Ranking depth requested and scored.
         adapter_options: The options passed to the adapter's constructor,
             recorded verbatim.
+        started_at: The instant the run began, captured by the caller before
+            the adapter was set up.
 
     Returns:
-        A JSON-serialisable manifest.
+        A JSON-serialisable manifest. `started_at` is the given instant the
+        run began, formatted as an ISO 8601 string; it is not the instant
+        this manifest itself was assembled or serialised.
     """
     return {
         "run_id": run_id,
@@ -63,7 +69,7 @@ def build_manifest(
             "path": portable_path(questions_path),
             "sha256": sha256_file(questions_path),
         },
-        "started_at": datetime.now(UTC).isoformat(),
+        "started_at": started_at.isoformat(),
         "harness": harness_commit(),
         "environment": {
             "python": platform.python_version(),

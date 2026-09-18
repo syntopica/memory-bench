@@ -24,12 +24,19 @@ judged not to block it.
   beside it is the real identity; the label is merely shorter than it should
   be.
 
-- [ ] **The manifest does not yet pin prompts or requested and resolved
-  models.** It now records when the run happened, which harness commit
-  produced it, the Python and platform versions, the dependency lock's digest
-  and the adapter options applied verbatim, alongside the corpus and question
-  digests, `k`, the adapter name and the SQLite version. What is still missing
-  is the prompts issued and the models requested and resolved, which arrive
+- [ ] **The manifest still cannot reproduce a run on its own.** It records
+  when the run started, which harness commit produced it (anchored at the
+  package's own root, not the caller's working directory), the Python and
+  platform versions, the dependency lock's digest, and the adapter options
+  applied verbatim, alongside the corpus and question digests, `k`, the
+  adapter name and the SQLite version. Four things the design record names are
+  still missing. The corpus and questions are hashed but not sourced: a
+  `sha256` verifies bytes the reader has no way to obtain, since the label
+  beside it is a bare relative path with no repository, URL or commit. The
+  adapter under test has no identity beyond its registered name — no version,
+  commit or package digest — which is the largest gap the moment a second
+  adapter exists. There is no image or container digest. And the prompts
+  issued and the models requested and resolved are still absent, which arrive
   with the model gateway.
 
 - [ ] **`raw.jsonl` does not say whether `ranked_sources` was truncated.** It
