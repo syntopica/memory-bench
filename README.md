@@ -160,13 +160,16 @@ around it is gone.
   measured on the same set, so no system can move a row in or out of a
   denominator by changing what it returns. Every metric below is `null` on an
   unanswerable row.
-- `answer_label_count`: How many conversations this question is labelled with,
-  `0` when it is unanswerable. It is what makes an empty `recall_all_*` cell
-  readable: that cell is `null` either because the run never looked that deep,
-  or because the depth cannot hold this many labels. `depth` settles the first
-  and this settles the second; without both, a consumer cannot tell which
-  happened, and a row that cannot say which of two things it means is not a
-  row this benchmark publishes.
+- `answer_label_count`: How many **distinct** conversations this question is
+  labelled with, `0` when it is unanswerable. It is what makes an empty
+  `recall_all_*` cell readable: that cell is `null` either because the run
+  never looked that deep, or because the depth cannot hold this many distinct
+  labels. `depth` settles the first and this settles the second; without both,
+  a consumer cannot tell which happened, and a row that cannot say which of
+  two things it means is not a row this benchmark publishes. Distinct is the
+  operative word, and it is the count the metric itself applies: a question
+  labelled with the same conversation six times is satisfied by one rank
+  slot.
 - `depth`: The `k` this run requested and observed; the six recalls and
   `reciprocal_rank` are measured at that depth and mean nothing without it.
 - `truncated`: `true` when the system offered more slots than `k` and the
@@ -192,7 +195,7 @@ around it is gone.
   property of the corpus, not of the system, and not comparable across sets.
 - `recall_all_at_5`: `1.0` when every one appeared in the first five, `null`
   when the run never looked five deep, or the question carries more than five
-  labels and five slots could not hold them.
+  distinct labels and five slots could not hold them.
 - `recall_all_at_10`: `1.0` when every one appeared in the first ten, `null`
   when the run never looked ten deep, or the question carries more than ten
   labels.
@@ -215,12 +218,19 @@ around it is gone.
   arrives as a new field with its own name.
 
   All seven are also `null` for a question the corpus deliberately cannot
-  answer, which carries no answer conversation at all. That is a third reason
-  a cell is empty, and it is not the same as the other two: the run may have
-  looked as deep as it was asked to and the system may have provenance, and
-  the metric still has no target to be right or wrong about. Read a `null`
-  against `depth`, `applicability` and `answerable` before concluding which
-  case it is.
+  answer, which carries no answer conversation at all. That is not the same as
+  the others: the run may have looked as deep as it was asked to and the
+  system may have provenance, and the metric still has no target to be right
+  or wrong about.
+
+  So an empty cell has four possible causes, and the row carries what
+  separates them. The run never looked that deep: `depth` is below the
+  metric's depth. The system has no provenance anywhere in the run:
+  `applicability` is `not_applicable`. The question has no answer:
+  `answerable` is `false`. The depth cannot hold the question's distinct
+  labels, which only affects `recall_all_*`: `answer_label_count` exceeds the
+  metric's depth. Read a `null` against all four before concluding which case
+  it is; none of them is a miss, and none is ever averaged as a zero.
 - `abstained`: `true` when the system returned nothing at all for this
   question, `false` when it returned something, and `null` on an answerable
   row, where the question does not arise. Evidence that names no source is

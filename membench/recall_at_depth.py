@@ -7,8 +7,10 @@ Recall = Callable[[Sequence[str | None], Sequence[str], int], float | None]
 
 It may itself return None for a depth it cannot observe - `recall_all_at_k`
 does, for a depth narrower than the label set - and that None passes through
-here unchanged: both absences mean the same thing to a reader, a metric the
-run did not observe rather than a miss.
+here unchanged. Both absences belong to the same class - a metric the run did
+not observe, rather than a miss - which is why neither is ever averaged as a
+zero. They do not have the same cause, though, and a reader who has to know
+which one applied reads `depth` against `answer_label_count` on the row.
 """
 
 

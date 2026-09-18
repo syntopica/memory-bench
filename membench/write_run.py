@@ -8,7 +8,7 @@ from pathlib import Path
 from membench.ingest_report import IngestReport
 from membench.question_result import QuestionResult
 
-RAW_SCHEMA_VERSION = "3.1"
+RAW_SCHEMA_VERSION = "4.0"
 """Version of one `raw.jsonl` row, written onto every row.
 
 Rows travel on their own: they are concatenated across runs, loaded years
@@ -52,12 +52,26 @@ null on an unanswerable row - undefined, not unobserved and not a miss - and
 that population is reported by its own abstention rate rather than averaged
 into the retrieval means.
 
-3.1 adds `answer_label_count`, which a 3.0 consumer can ignore. It exists
-because 3.0 left an empty all-recall cell ambiguous: the cell is null either
-because the run never looked that deep or because the depth cannot hold that
-many labels, and `depth` alone distinguishes only the first. A row that cannot
-say which of two things it means is the kind of artifact this repository does
-not publish, so the count that settles it travels on the row.
+4.0 changes what `recall_all_at_1`, `recall_all_at_5` and `recall_all_at_10`
+mean, so a 3.0 consumer must **not** carry its reading across. Under 3.0 they
+were 0.0 whenever every label was not within the depth, including at a depth
+that could not physically hold them: a question with three distinct labels
+scored 0.0 at depth 1 no matter what the system returned, and the mean of
+those zeros was the share of single-label questions in the set rather than
+anything about a system. They are now null there - unobserved, like a depth
+the run never reached - and null is skipped rather than averaged. Concatenating
+3.0 and 4.0 rows, which is exactly what the per-row version exists to allow,
+would average a 0.0 against a skipped null and report a different number
+without failing anywhere. That is the silent re-scoring the major part exists
+to make loud.
+
+4.0 also adds `answer_label_count`, the number of **distinct** conversations a
+question is labelled with. It is what makes an empty all-recall cell readable:
+the cell is null either because the run never looked that deep or because the
+depth cannot hold that many distinct labels, and `depth` alone distinguishes
+only the first. Distinct is the operative word and is the count the metric
+itself applies - a question labelled with the same conversation six times
+needs one slot, not six.
 """
 
 

@@ -37,12 +37,19 @@ class QuestionResult:
             a token budget cut the ranking too, and this field still says
             False. Track R passes no budget, so today the two cannot be
             confused; Track A will need a signal that says which cut fired.
-        answer_label_count: How many conversations the question is labelled
-            with. It is what makes an empty all-recall cell readable: that
-            cell is None either because the run never looked that deep, or
-            because the depth cannot hold this many labels, and without the
-            count a consumer cannot tell the two apart. `depth` answers the
-            first, this answers the second. Zero on an unanswerable question.
+        answer_label_count: How many **distinct** conversations the question
+            is labelled with. It is what makes an empty all-recall cell
+            readable: that cell is None either because the run never looked
+            that deep, or because the depth cannot hold this many distinct
+            labels, and without the count a consumer cannot tell the two
+            apart. `depth` answers the first, this answers the second. Zero on
+            an unanswerable question.
+
+            Distinct, not raw, because that is the count the metric applies:
+            a question labelled with the same conversation six times is
+            satisfied by one rank slot. Counting the repeats here would
+            promise a null at depth five that the row does not carry, which is
+            the field failing at the one job it was added for.
         recall_any_at_1: 1.0 when at least one labelled conversation ranked
             first.
         recall_any_at_5: 1.0 when at least one appeared in the first five,

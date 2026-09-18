@@ -15,6 +15,7 @@ from membench.load_corpus import load_corpus
 from membench.load_options_or_error import load_options_or_error
 from membench.load_questions import load_questions
 from membench.metric_means import metric_means
+from membench.metric_observations import metric_observations
 from membench.run_track_r import run_track_r
 from membench.validate_run_paths import validate_run_paths
 from membench.write_run import write_run
@@ -97,8 +98,15 @@ def main(argv: Sequence[str] | None = None) -> int:
     # the whole run, so this is all of them or none; counting the unanswerable
     # rows in as well would subtract them twice and report a negative tally.
     excluded = [result for result in answerable if result.applicability != "scored"]
+    # Each mean carries the number of questions it was taken over, because
+    # they are not all taken over the same ones: an all-recall is undefined
+    # for every question carrying more distinct labels than the depth can
+    # hold, so its mean can rest on a fraction of the rows the any-recall
+    # beside it rests on. Undenominated in one block, they read as comparable.
+    observations = metric_observations(results)
     for metric, mean in metric_means(results).items():
-        print(f"{metric}@k={args.k}: {'n/a' if mean is None else format(mean, '.4f')}")
+        value = "n/a" if mean is None else format(mean, ".4f")
+        print(f"{metric}@k={args.k}: {value} (over {observations[metric]} questions)")
     print(
         f"scored {len(answerable) - len(excluded)} of {len(answerable)} answerable questions; "
         f"{len(excluded)} excluded as not applicable to Track R"

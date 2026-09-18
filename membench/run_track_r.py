@@ -71,7 +71,7 @@ def run_track_r(
                 ranked_sources=tuple(sources),
                 applicability=applicability,
                 answerable=bool(answer_ids),
-                answer_label_count=len(answer_ids),
+                answer_label_count=len(set(answer_ids)),
                 depth=k,
                 truncated=len(full_sources) > k,
                 recall_any_at_1=metrics["recall_any_at_1"],

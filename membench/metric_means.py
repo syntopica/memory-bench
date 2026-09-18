@@ -4,7 +4,7 @@ from collections.abc import Sequence
 
 from membench.question_result import QuestionResult
 
-_METRICS = (
+METRICS = (
     "recall_any_at_1",
     "recall_any_at_5",
     "recall_any_at_10",
@@ -13,6 +13,11 @@ _METRICS = (
     "recall_all_at_10",
     "reciprocal_rank",
 )
+"""Every Track R metric, in report order.
+
+Exported because `metric_observations` counts the rows behind these same
+means and must not keep a second list that could drift from this one.
+"""
 
 
 def metric_means(results: Sequence[QuestionResult]) -> dict[str, float | None]:
@@ -62,7 +67,7 @@ def metric_means(results: Sequence[QuestionResult]) -> dict[str, float | None]:
         result for result in results if result.answerable and result.applicability == "scored"
     ]
     means: dict[str, float | None] = {}
-    for metric in _METRICS:
+    for metric in METRICS:
         observed = [value for result in scored if (value := getattr(result, metric)) is not None]
         means[metric] = sum(observed) / len(observed) if observed else None
     return means
