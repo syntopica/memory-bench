@@ -152,12 +152,34 @@ There are 500 instances.
    Track A can find them later. **LongMemEval contains no instance of this
    harness's unanswerable question** — that concept exists for Corpus A, and
    `abstention_rate` will correctly report `n/a` on this corpus.
-3. **Haystacks may be unioned into one corpus.** Across the oracle's 500
-   instances there are 948 session ids and 940 distinct ones; every one of the
-   8 repeats carries byte-identical content, verified by hashing. Assert this
-   again on the `_s` release before unioning — if a repeated id ever carries
-   different content, unioning silently corrupts a label and the converter must
-   fail rather than pick one.
+3. **Haystacks are unioned into one corpus, and that is a deliberate departure
+   from LongMemEval's own protocol.** Measured on the `_s` cleaned release:
+   500 instances, 38 to 62 sessions each, 23,867 sessions of which **19,195 are
+   distinct**, 246,750 turns. Of the 4,672 repeated session ids, every one
+   carries byte-identical content — verified by hashing all of them — so the
+   union loses nothing and corrupts no label. The converter must assert this
+   again at conversion time and **fail** rather than pick one, because a future
+   release where a repeated id differs would silently corrupt a label.
+
+   **Ruling: union, and say loudly what it changes.** LongMemEval's own
+   protocol asks each question against its own ~48-session haystack. Unioning
+   asks it against all 19,195, which is a substantially harder retrieval task.
+   Two consequences, and the report must carry both:
+   - **Our LongMemEval numbers are not comparable to anyone's published
+     LongMemEval numbers**, including mem0's. They were not comparable anyway —
+     different reader, prompt, budget, product version, and possibly the noisy
+     pre-cleaned release — but this makes the gap structural rather than
+     incidental. Say it as a property of the measurement, not a caveat.
+   - It is the same corpus for every system measured, so it remains a fair
+     comparison *between* systems, which is what this benchmark is for.
+
+   The reason to prefer it: a memory system's real problem is finding the right
+   conversation among years of them, not among forty-eight. The union is closer
+   to what these systems are sold to do, and it is the task this benchmark's
+   own subject matter cares about. A per-instance mode remains available later
+   as a second reported number — it is a driver loop, not a harness concept —
+   and would be the one to add if comparability with published work ever
+   becomes the goal.
 4. **`question_date` is the `as_of` field** the sibling plan's Task 1 added.
    Carry it across.
 5. **`question_type` supplies six native categories**: `temporal-reasoning`
