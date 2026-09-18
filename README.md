@@ -61,6 +61,35 @@ separate anything here. A corpus this benchmark reports recall@10 on has to be
 large enough for the number to mean something, and a saturated column is
 reported as saturated rather than as a tie.
 
+## The result schema
+
+Every line of `raw.jsonl` is one question's Track R result, versioned by
+`schema_version` so a row can be read correctly years after the run directory
+around it is gone.
+
+- `schema_version`: The `raw.jsonl` row format this row was written under.
+- `question_id`: Which question this is.
+- `strata`: The question's tags, for descriptive breakdowns only.
+- `ranked_sources`: One entry per slot the system spent, best first; `null`
+  marks a slot spent by evidence that carried no source conversation.
+- `applicability`: `"scored"`, or `"not_applicable"` when the system returned
+  evidence with no source conversation anywhere in the full ranking, which
+  leaves every metric below `null`.
+- `depth`: The `k` this run requested and observed; every metric below is
+  measured at that depth and means nothing without it.
+- `truncated`: `true` when the system offered more slots than `k` and the
+  ranking was cut, so a reader knows a missing later source is the harness's
+  choice, not the system's.
+- `recall_at_1`: `1.0` when the answer conversation ranked first.
+- `recall_at_5`: `1.0` when it appeared in the first five, `null` when the
+  run never looked five deep.
+- `recall_at_10`: `1.0` when it appeared in the first ten, `null` when the
+  run never looked ten deep.
+- `reciprocal_rank`: `1 / rank` of the answer conversation within `depth`,
+  `0.0` when it is absent from the observed ranking.
+- `seconds`: Wall-clock duration of this single query.
+- `evidence_texts`: The evidence as returned, kept so a miss can be read.
+
 ## Flags
 
 - `--adapter` (required): which system under test to run, by name.

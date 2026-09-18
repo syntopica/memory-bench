@@ -202,3 +202,33 @@ def test_provenance_past_the_requested_depth_still_scores_the_system():
     assert result.recall_at_1 == 0.0
     assert result.reciprocal_rank == 0.0
     assert result.ranked_sources == (None, None)
+
+
+def test_a_cut_ranking_says_it_was_cut():
+    adapter = _StubAdapter(
+        [
+            Evidence(
+                text="crowded",
+                native_id="e1",
+                source_ids=("c1", "c2", "c3", "c4"),
+                timestamp=None,
+            )
+        ]
+    )
+    question = Question(question_id="q1", question="?", answer_conversation_id="c1", strata=())
+
+    result = run_track_r(adapter, [question], 2)[0]
+
+    assert result.ranked_sources == ("c1", "c2")
+    assert result.truncated is True
+
+
+def test_a_ranking_that_fits_says_it_was_not_cut():
+    adapter = _StubAdapter(
+        [Evidence(text="one", native_id="e1", source_ids=("c1",), timestamp=None)]
+    )
+    question = Question(question_id="q1", question="?", answer_conversation_id="c1", strata=())
+
+    result = run_track_r(adapter, [question], 10)[0]
+
+    assert result.truncated is False
