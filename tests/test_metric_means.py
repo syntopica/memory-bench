@@ -9,6 +9,7 @@ def _result(applicability: str = "scored", **overrides) -> QuestionResult:
         "ranked_sources": ("c5",),
         "applicability": applicability,
         "depth": 10,
+        "truncated": False,
         "recall_at_1": 1.0,
         "recall_at_5": 1.0,
         "recall_at_10": 1.0,

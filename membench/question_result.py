@@ -19,6 +19,9 @@ class QuestionResult:
             track, which is not the same as having searched and failed.
         depth: The `k` this run requested and observed. Every metric below is
             measured at that depth and means nothing without it.
+        truncated: True when the system offered more slots than `k` and the
+            ranking was cut, so a reader knows the absence of a later source
+            is the harness's choice and not the system's.
         recall_at_1: 1.0 when the answer conversation ranked first.
         recall_at_5: 1.0 when it appeared in the first five, None when the run
             never looked five deep.
@@ -37,6 +40,7 @@ class QuestionResult:
     ranked_sources: tuple[str | None, ...]
     applicability: str
     depth: int
+    truncated: bool
     recall_at_1: float | None
     recall_at_5: float | None
     recall_at_10: float | None

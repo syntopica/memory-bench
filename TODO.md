@@ -39,10 +39,6 @@ judged not to block it.
   issued and the models requested and resolved are still absent, which arrive
   with the model gateway.
 
-- [ ] **`raw.jsonl` does not say whether `ranked_sources` was truncated.** It
-  is cut at `k` with no signal, so a reader cannot distinguish "the system
-  returned three sources" from "we asked for three".
-
 - [ ] **A forced re-run does not clear the adapter's workspace.** `--force`
   correctly overwrites the harness's own `manifest.json` and `raw.jsonl`, but
   `<out>/workspace/` keeps whatever the previous run's adapter left there. Run
@@ -80,10 +76,6 @@ judged not to block it.
   that: it stats the whole database, including FTS5's verbatim copy of the
   corpus. The plan is a frozen historical document, but a reader meets the
   contradiction.
-
-- [ ] **No published row schema for `raw.jsonl`.** `RAW_SCHEMA_VERSION` is
-  declared and emitted, but `applicability`, `depth` and `schema_version`
-  itself are documented only in the code that writes them.
 
 ## Measurement, deliberately deferred
 

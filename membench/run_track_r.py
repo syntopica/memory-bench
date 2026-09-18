@@ -51,6 +51,7 @@ def run_track_r(
                 ranked_sources=tuple(sources),
                 applicability=applicability,
                 depth=k,
+                truncated=len(full_sources) > k,
                 recall_at_1=recall_at_depth(sources, answer, 1, k) if scorable else None,
                 recall_at_5=recall_at_depth(sources, answer, 5, k) if scorable else None,
                 recall_at_10=recall_at_depth(sources, answer, 10, k) if scorable else None,
