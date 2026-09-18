@@ -41,6 +41,9 @@ class QuestionResult:
             when it is absent from the observed ranking. This is RR at `depth`:
             a miss inside an observed depth is a real zero for that metric, and
             `depth` is recorded so it is never read as RR at full depth.
+            All four metrics are additionally None for a question the corpus
+            deliberately cannot answer: there is no target conversation, so
+            the metric is undefined rather than unobserved or missed.
         seconds: Wall-clock duration of this single query.
         evidence_texts: The evidence as returned, kept so a miss can be read.
             One entry per hit, not per slot, and not cut at `k`: it is

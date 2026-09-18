@@ -336,3 +336,25 @@ def test_abstaining_and_returning_unsourced_junk_score_the_same():
     assert metric_means(silent) == metric_means(junk)
     assert silent[1].applicability == junk[1].applicability == "scored"
     assert silent[1].reciprocal_rank == junk[1].reciprocal_rank == 0.0
+
+
+def test_an_unanswerable_question_scores_no_metric_and_never_false_matches():
+    """The guard this pins is one line and it protects the whole question class.
+
+    `recall_at_k` asks `answer_id in ranked[:k]`, and an unsourced rank slot is
+    None. A question the corpus cannot answer carries a None answer, so without
+    the guard a system that returned one unsourced hit would score a hit on the
+    one question that cannot be hit. Line coverage does not see this: the guard
+    is a ternary, and either branch satisfies it.
+    """
+    question = Question(
+        question_id="qx",
+        question="algo que el corpus no responde",
+        answer_conversation_id=None,
+        strata=("es", "conversation", "no-overlap", "recent"),
+    )
+    result = run_track_r(_StubAdapter([_no_provenance()]), [question])[0]
+    assert result.recall_at_1 is None
+    assert result.recall_at_5 is None
+    assert result.recall_at_10 is None
+    assert result.reciprocal_rank is None
