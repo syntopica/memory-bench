@@ -24,6 +24,8 @@ judged not to block it.
   That is a new metric with its own name when it is wanted, never a
   redefinition of this one.
 
+  Needs owner (2026-10-11): whether the worst-rank metric is wanted at all; nothing here asks for it yet.
+
 ## Artifacts
 
 - [ ] **The manifest still cannot reproduce a run on its own.** It records
@@ -40,6 +42,8 @@ judged not to block it.
   adapter exists. There is no image or container digest. And the prompts
   issued and the models requested and resolved are still absent, which arrive
   with the model gateway.
+
+  Needs owner (2026-10-11): where corpora are published, so a digest can name a source, and the adapter-identity shape, which waits on a second adapter.
 
 - [~] **A re-run under `--force` does not clear the adapter's workspace.**
   The harness never clears `<out>/workspace/`, so a forced re-run hands the
@@ -80,6 +84,8 @@ judged not to block it.
   governs it. Splitting the normative rules from the rationale, and giving the
   rules citable revisions, is the work.
 
+  Needs owner (2026-10-11): which rules become normative, and the revision scheme a result cites.
+
 - [ ] **The published rationale is a build artifact, not a document written to
   be read.** The two-track argument, the saturation explanation, the untuned
   floor and the threshold-preregistration rule are all in
@@ -89,6 +95,8 @@ judged not to block it.
   inconvenient parts forward, including this benchmark's origin as a comparison
   against its author's own system, or the reframing becomes reputation
   management.
+
+  Needs owner (2026-10-11): the restatement speaks for the author, including this benchmark's origin, so it is the author's to write or approve.
 
 ## Measurement, deliberately deferred
 
