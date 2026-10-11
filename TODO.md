@@ -45,24 +45,6 @@ judged not to block it.
 
   Needs owner (2026-10-11): where corpora are published, so a digest can name a source, and the adapter-identity shape, which waits on a second adapter.
 
-- [~] **A re-run under `--force` does not clear the adapter's workspace.**
-  The harness never clears `<out>/workspace/`, so a forced re-run hands the
-  adapter whatever a previous run's adapter left there, while "ingest into an
-  empty system" is what the contract promises. No harness artifact is wrong —
-  the adapter owns its workspace and cleans its own state, as the FTS5
-  baseline does — but a second adapter has no way to know what it inherited.
-
-  Done 2026-10-11: the unflagged path is closed. A run that failed after
-  creating its workspace leaves it populated with no `manifest.json`, and
-  `validate_run_paths` now refuses a non-empty workspace without `--force`
-  (`tests/test_validate_run_paths.py`), so a dirty workspace is only ever
-  reached by typing the flag, and the README says the flag does not clear it.
-
-  Remaining, needs owner: decide whether the harness clears the workspace
-  before constructing an adapter under `--force`, or the contract says an
-  adapter must tolerate a dirty one. Either changes `ADAPTER_CONTRACT_VERSION`
-  semantics, so it is a contract decision, not a cleanup.
-
 ## Contract
 
 - [ ] **There is no mechanism for registering a foreign adapter.** The harness

@@ -7,7 +7,7 @@ from membench.conversation import Conversation
 from membench.evidence import Evidence
 from membench.ingest_report import IngestReport
 
-ADAPTER_CONTRACT_VERSION = "2.0"
+ADAPTER_CONTRACT_VERSION = "2.1"
 """Version of the `MemoryAdapter` contract below.
 
 The Protocol is published: adapters for systems this repository does not own
@@ -24,12 +24,19 @@ still binds, so nothing is refused: it creates its database at the directory
 path and fails somewhere else, or not at all. Read this version before
 concluding an adapter is broken.
 
+2.1 makes the workspace's emptiness a guarantee rather than an accident of a
+fresh output directory. The harness refuses a non-empty workspace unless
+`--force` is given, and under `--force` it removes the workspace and creates
+it again before constructing the adapter, so an adapter is always constructed
+on an empty directory. A 2.0 adapter loses nothing: it cleaned or tolerated
+its own leftovers, and it now has none to meet.
+
 Construction is part of the contract but outside the Protocol below, because
 it is where adapters differ: an adapter is a callable that takes a workspace
 `Path` it owns exclusively, plus keyword options recorded verbatim in the
 run's manifest, and it creates nothing outside that workspace. The harness
-creates the workspace directory before constructing the adapter, so `__init__`
-and `setup()` may assume it exists; the harness itself never writes inside
+creates the workspace directory, empty, before constructing the adapter, so
+`__init__` and `setup()` may assume it exists and holds nothing; the harness itself never writes inside
 it - a run's frozen artifacts (`manifest.json`, `raw.jsonl`) land in the
 workspace's parent directory instead, so an adapter's own files never collide
 with them. Options must be JSON-representable: they are read from a JSON file

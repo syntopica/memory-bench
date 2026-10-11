@@ -11,6 +11,7 @@ from membench.abstention_rate import abstention_rate
 from membench.adapter_lifecycle import adapter_lifecycle
 from membench.build_adapter import ADAPTERS, build_adapter
 from membench.build_manifest import build_manifest
+from membench.clear_workspace import clear_workspace
 from membench.load_corpus import load_corpus
 from membench.load_options_or_error import load_options_or_error
 from membench.load_questions import load_questions
@@ -43,7 +44,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     run.add_argument("--questions", type=Path, required=True)
     run.add_argument("--out", type=Path, required=True)
     run.add_argument("--k", type=int, default=10)
-    run.add_argument("--force", action="store_true", help="Overwrite an existing run directory")
+    run.add_argument(
+        "--force",
+        action="store_true",
+        help="Overwrite an existing run directory and clear its adapter workspace",
+    )
     run.add_argument(
         "--adapter-options", type=Path, default=None, help="JSON object of options for the adapter"
     )
@@ -73,6 +78,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"rejected adapter option: {error}", file=sys.stderr)
         return 2
 
+    # Cleared only after every refusal above, so a rejected forced run leaves
+    # the previous workspace as it was. Without --force a non-empty workspace
+    # was already refused, so this is the one path that could reach one.
+    if args.force:
+        clear_workspace(workspace)
     workspace.mkdir(parents=True, exist_ok=True)
     adapter = build_adapter(args.adapter, workspace, options)
     started_at = datetime.now(UTC)

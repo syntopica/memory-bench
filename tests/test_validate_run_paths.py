@@ -71,3 +71,50 @@ def test_the_run_after_a_crash_is_refused_until_forced(
 
     assert main([*argv, "--adapter", "baseline_fts5"]) == 2
     assert main([*argv, "--adapter", "baseline_fts5", "--force"]) == 0
+
+
+def test_a_forced_rerun_ingests_into_an_empty_workspace(tmp_path: Path):
+    out = tmp_path / "run"
+    workspace = out / "workspace"
+    workspace.mkdir(parents=True)
+    (workspace / "stale.bin").write_bytes(b"a previous adapter's state")
+    argv = [
+        "run",
+        "--adapter",
+        "baseline_fts5",
+        "--corpus",
+        str(FIXTURE / "corpus.jsonl"),
+        "--questions",
+        str(FIXTURE / "questions.jsonl"),
+        "--out",
+        str(out),
+        "--force",
+    ]
+
+    assert main(argv) == 0
+
+    assert not (workspace / "stale.bin").exists()
+    assert (workspace / "index.db").exists()
+
+
+def test_a_refused_forced_run_leaves_the_workspace_alone(tmp_path: Path):
+    out = tmp_path / "run"
+    workspace = out / "workspace"
+    workspace.mkdir(parents=True)
+    (workspace / "stale.bin").write_bytes(b"kept")
+    argv = [
+        "run",
+        "--adapter",
+        "no_such_adapter",
+        "--corpus",
+        str(FIXTURE / "corpus.jsonl"),
+        "--questions",
+        str(FIXTURE / "questions.jsonl"),
+        "--out",
+        str(out),
+        "--force",
+    ]
+
+    assert main(argv) == 2
+
+    assert (workspace / "stale.bin").read_bytes() == b"kept"

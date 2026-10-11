@@ -6,6 +6,19 @@ Closed work from `TODO.md`, newest first within each month.
 
 ### 2026-10
 
+- [x] 2026-10-11 **A re-run under `--force` clears the adapter's workspace.**
+  Decided 2026-10-11 (owner via Codex adjudication): under `--force` the
+  harness clears its dedicated adapter workspace before constructing the
+  adapter, and the adapter contract version is bumped. `membench/clear_workspace.py`
+  removes `<out>/workspace/` (a symlink is unlinked, never followed), and
+  `membench/cli.py` calls it under `--force` only after every refusal has
+  passed, so a rejected forced run leaves the old workspace untouched.
+  `ADAPTER_CONTRACT_VERSION` is now `2.1`: an adapter is always constructed
+  on an empty workspace, which a 2.0 adapter can ignore. Evidence:
+  `tests/test_clear_workspace.py`, and in `tests/test_validate_run_paths.py`
+  a forced re-run over a populated workspace that no longer holds the stale
+  file and a refused forced run that keeps it; `uv run codeality-py gate`
+  passed.
 - [x] 2026-10-11 **The README names the renames the frozen plans still
   use.** A new "Names the plans still use" section maps `index_bytes` to
   `persisted_bytes`, `recall_at_1` to the `recall_any_at_k` /

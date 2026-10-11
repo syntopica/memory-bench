@@ -103,7 +103,7 @@ What the harness requires of an adapter beyond the method signatures:
   not happen. Options must be JSON-representable, since they are read from a
   JSON file and recorded verbatim in the manifest.
 - **The workspace.** The adapter owns `<out>/workspace/`, exclusively, and
-  creates nothing outside it. The harness creates the directory before
+  creates nothing outside it. The harness creates the directory, empty, before
   constructing the adapter, and never writes inside it: the run's frozen
   artifacts land in the parent.
 - **Source ids.** `source_ids` are matched **verbatim** against the corpus
@@ -350,8 +350,9 @@ longer emits under those names:
   touch a directory that already holds a `manifest.json`, so a frozen result is
   never silently replaced, and refuses a non-empty `workspace/` with no
   manifest beside it, which is what a run that failed part-way leaves behind.
-  `--force` does not clear the workspace: the adapter inherits whatever is
-  there.
+  Under `--force` the harness removes `workspace/` and creates it again,
+  empty, after every other check has passed and before the adapter is
+  constructed, so a forced re-run ingests into an empty system like any other.
 - `--adapter-options`: path to a JSON object of options forwarded to the
   adapter's constructor. An option the adapter does not accept is refused
   before anything is written, rather than being silently ignored.
