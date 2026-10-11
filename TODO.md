@@ -34,14 +34,6 @@ judged not to block it.
 
 ## Artifacts
 
-- [ ] **`portable_path` is relative to the working directory, not to the
-  corpus or the repository.** It succeeds at what it was written for — no
-  operator's home path can reach a manifest — but the same corpus labelled
-  from a subdirectory, or stored outside the tree, collapses to a bare
-  `corpus.jsonl`, which is the name every fixture corpus shares. The sha256
-  beside it is the real identity; the label is merely shorter than it should
-  be.
-
 - [ ] **The manifest still cannot reproduce a run on its own.** It records
   when the run started, which harness commit produced it (anchored at the
   package's own root, not the caller's working directory), the Python and
