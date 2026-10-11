@@ -88,7 +88,9 @@ class QuestionResult:
             change every published number without a version saying so. This is
             RR at `depth`: a miss inside an observed depth is a real zero for
             this metric, and `depth` is recorded so it is never read as RR at
-            full depth.
+            full depth. Rows from runs at different depths carry different
+            metrics under this one name: a consumer concatenating runs must
+            group by `depth` before averaging it.
         abstained: True when the system returned nothing at all for this
             question, False when it returned something, and None on an
             answerable row, where the question does not arise. Returning

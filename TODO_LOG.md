@@ -6,6 +6,14 @@ Closed work from `TODO.md`, newest first within each month.
 
 ### 2026-10
 
+- [x] 2026-10-11 **`reciprocal_rank`'s depth constraint is documented where a
+  consumer reads it.** The field keeps its name (renaming it is a schema
+  change no published number needed); the README's schema entry and the
+  `QuestionResult` docstring now say it is RR at `depth`, give the
+  eleventh-rank example, and tell a consumer concatenating runs to group by
+  `depth` before averaging. Evidence: `README.md`, `membench/question_result.py`;
+  `uv run codeality-py gate` passed, and
+  `test_the_fixture_headline_is_exactly_what_the_readme_publishes` still holds.
 - [x] 2026-10-11 **`portable_path` no longer depends on the working
   directory.** A file inside a repository is now labelled relative to that
   repository's root (the nearest ancestor holding a `.git` directory or file),

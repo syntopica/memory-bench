@@ -6,14 +6,6 @@ judged not to block it.
 
 ## Scoring
 
-- [ ] **`reciprocal_rank` is reciprocal rank at `depth`, under an unqualified
-  name.** Every row carries `depth`, and the CLI labels its own output
-  `reciprocal_rank@k=<k>`, so the information is not lost. But rows are
-  designed to be concatenated across runs, and a consumer that averages a
-  `k=2` run together with a `k=10` run mixes two different metrics without
-  noticing. Either qualify the field name or document the constraint where a
-  consumer will read it.
-
 - [ ] **No shipped corpus exercises a multi-label or an unanswerable question
   end to end.** `recall_all_*` and the abstention line are covered by unit
   tests and by a CLI test that writes its own question file, but

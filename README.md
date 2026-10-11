@@ -237,6 +237,14 @@ around it is gone.
   without a version saying it changed; if that measurement is ever wanted it
   arrives as a new field with its own name.
 
+  The name is unqualified, and the depth is not: this is reciprocal rank
+  **at `depth`**, which the CLI prints as `reciprocal_rank@k=<k>`. A label
+  ranked eleventh is `0.0` at `k=10` and `0.0909` at `k=20`, so rows from
+  runs at different depths are different metrics under one field name. Rows
+  are made to be concatenated across runs; **group by `depth` before
+  averaging this field**, or the mean silently mixes the two. The six recalls
+  carry their depth in their own names, so only this field needs the rule.
+
   All seven are also `null` for a question the corpus deliberately cannot
   answer, which carries no answer conversation at all. That is not the same as
   the others: the run may have looked as deep as it was asked to and the
