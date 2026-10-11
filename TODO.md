@@ -49,25 +49,23 @@ judged not to block it.
   issued and the models requested and resolved are still absent, which arrive
   with the model gateway.
 
-- [ ] **A re-run does not clear the adapter's workspace, and the likelier
-  path needs no `--force` at all.** The harness never clears
-  `<out>/workspace/`, so an adapter can inherit whatever a previous run's
-  adapter left there, while "ingest into an empty system" is what the contract
-  promises. No harness artifact is wrong — the adapter owns its workspace and
-  cleans its own state, as the FTS5 baseline does — but a second adapter has
-  no way to know what it inherited.
+- [~] **A re-run under `--force` does not clear the adapter's workspace.**
+  The harness never clears `<out>/workspace/`, so a forced re-run hands the
+  adapter whatever a previous run's adapter left there, while "ingest into an
+  empty system" is what the contract promises. No harness artifact is wrong —
+  the adapter owns its workspace and cleans its own state, as the FTS5
+  baseline does — but a second adapter has no way to know what it inherited.
 
-  With `--force` this is deliberate and visible. Without it, it is neither:
-  `write_run` is the last thing the CLI does, so any run that fails after
-  `workspace.mkdir()` — during setup, ingest or querying — leaves
-  `<out>/workspace/` populated and `<out>/manifest.json` absent. The pre-flight
-  guard in `validate_run_paths` keys on `manifest.json`, so the next run into
-  that directory is not refused and is not warned: it walks into a crashed
-  run's leftovers with no flag typed. A crash is the likelier path to a dirty
-  workspace, not `--force`.
+  Done 2026-10-11: the unflagged path is closed. A run that failed after
+  creating its workspace leaves it populated with no `manifest.json`, and
+  `validate_run_paths` now refuses a non-empty workspace without `--force`
+  (`tests/test_validate_run_paths.py`), so a dirty workspace is only ever
+  reached by typing the flag, and the README says the flag does not clear it.
 
-  Decide whether the harness clears the workspace before constructing an
-  adapter, or the contract says an adapter must tolerate a dirty one.
+  Remaining, needs owner: decide whether the harness clears the workspace
+  before constructing an adapter under `--force`, or the contract says an
+  adapter must tolerate a dirty one. Either changes `ADAPTER_CONTRACT_VERSION`
+  semantics, so it is a contract decision, not a cleanup.
 
 ## Contract
 

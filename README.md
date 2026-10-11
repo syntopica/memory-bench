@@ -321,7 +321,10 @@ and `1.0000` on abstention, which is exactly what it did.
   than as misses when `k` is smaller than they are.
 - `--force`: overwrite an existing run directory. Without it, a run refuses to
   touch a directory that already holds a `manifest.json`, so a frozen result is
-  never silently replaced.
+  never silently replaced, and refuses a non-empty `workspace/` with no
+  manifest beside it, which is what a run that failed part-way leaves behind.
+  `--force` does not clear the workspace: the adapter inherits whatever is
+  there.
 - `--adapter-options`: path to a JSON object of options forwarded to the
   adapter's constructor. An option the adapter does not accept is refused
   before anything is written, rather than being silently ignored.
