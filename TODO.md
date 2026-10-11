@@ -24,7 +24,7 @@ judged not to block it.
   That is a new metric with its own name when it is wanted, never a
   redefinition of this one.
 
-  Needs owner (2026-10-11): whether the worst-rank metric is wanted at all; nothing here asks for it yet.
+  Decided 2026-10-11 (owner via Codex adjudication): wait. The worst-rank metric is deferred until a shipped multi-label corpus demonstrates its use, the best-rank `reciprocal_rank` definition stays, and any new metric is named separately.
 
 ## Artifacts
 
@@ -74,7 +74,7 @@ judged not to block it.
   against its author's own system, or the reframing becomes reputation
   management.
 
-  Needs owner (2026-10-11): the restatement speaks for the author, including this benchmark's origin, so it is the author's to write or approve.
+  Decided 2026-10-11 (owner): draft kept, not published.
 
 ## Measurement, deliberately deferred
 
