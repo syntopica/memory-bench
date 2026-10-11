@@ -28,22 +28,28 @@ judged not to block it.
 
 ## Artifacts
 
-- [ ] **The manifest still cannot reproduce a run on its own.** It records
+- [~] **The manifest still cannot reproduce a run on its own.** It records
   when the run started, which harness commit produced it (anchored at the
   package's own root, not the caller's working directory), the Python and
   platform versions, the dependency lock's digest, and the adapter options
   applied verbatim, alongside the corpus and question digests, `k`, the
-  adapter name and the SQLite version. Four things the design record names are
-  still missing. The corpus and questions are hashed but not sourced: a
-  `sha256` verifies bytes the reader has no way to obtain, since the label
-  beside it is a bare relative path with no repository, URL or commit. The
-  adapter under test has no identity beyond its registered name — no version,
-  commit or package digest — which is the largest gap the moment a second
-  adapter exists. There is no image or container digest. And the prompts
-  issued and the models requested and resolved are still absent, which arrive
-  with the model gateway.
+  adapter name and the SQLite version. Since manifest `1.1` the corpus and
+  questions also name their source: `source.repository` (the `origin` remote,
+  credentials stripped) and `source.commit` (`HEAD`, only when it holds the
+  file unmodified), so the digest verifies bytes a reader can fetch
+  (`membench/file_source.py`, `tests/test_file_source.py`).
 
-  Needs owner (2026-10-11): where corpora are published, so a digest can name a source, and the adapter-identity shape, which waits on a second adapter.
+  Decided 2026-10-11 (owner via Codex adjudication): corpora are published as
+  versioned artifacts alongside the harness, and each manifest cites a
+  repository commit or release plus a digest; the adapter identity field is
+  defined when a second adapter exists, from its package version or commit
+  and a configuration digest.
+
+  Remaining: the adapter under test still has no identity beyond its
+  registered name - deferred by that decision until the second adapter is
+  built. There is no image or container digest. And the prompts issued and the
+  models requested and resolved are still absent, which arrive with the model
+  gateway.
 
 ## Contract
 

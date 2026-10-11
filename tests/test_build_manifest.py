@@ -124,3 +124,19 @@ def test_the_timestamp_is_the_caller_s_instant_not_the_serialisation_instant():
         started_at=earlier,
     )
     assert manifest["started_at"] == earlier.isoformat()
+
+
+def test_the_corpus_and_questions_name_their_source(tmp_path: Path):
+    path = tmp_path / "f.jsonl"
+    path.write_bytes(b"{}")
+    manifest = build_manifest(
+        run_id="r",
+        adapter_name="a",
+        corpus_path=path,
+        questions_path=path,
+        k=1,
+        adapter_options={},
+        started_at=datetime.now(UTC),
+    )
+    assert manifest["corpus"]["source"] == {"repository": None, "commit": None}
+    assert manifest["questions"]["source"] == {"repository": None, "commit": None}

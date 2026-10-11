@@ -7,13 +7,14 @@ from datetime import datetime
 from pathlib import Path
 
 from membench.dependency_lock import dependency_lock
+from membench.file_source import file_source
 from membench.harness_commit import harness_commit
 from membench.memory_adapter import ADAPTER_CONTRACT_VERSION
 from membench.portable_path import portable_path
 from membench.sha256_file import sha256_file
 from membench.write_run import RAW_SCHEMA_VERSION
 
-MANIFEST_VERSION = "1.0"
+MANIFEST_VERSION = "1.1"
 """Version of the manifest object below, written into every manifest.
 
 The manifest travels the way a raw row does: it is read by tools this
@@ -28,6 +29,10 @@ The shape gained five top-level keys before any of this was published, so
 there is no manifest in anyone's hands that this field would be dating; a 2.0
 here would imply a 1.0 that no reader can ever meet. The number begins at the
 first shape that ships.
+
+1.1 adds a `source` object to `corpus` and to `questions`, naming the
+repository and commit a reader can fetch the hashed bytes from, so the digest
+verifies something obtainable. A 1.0 reader can ignore it.
 """
 
 
@@ -48,7 +53,8 @@ def build_manifest(
     the shape of one `raw.jsonl` row beside it, and `adapter_contract_version`
     the contract the measured system implemented. A command line does not say
     which bytes were read, so the corpus and the
-    question set are hashed. The SQLite version is recorded because the
+    question set are hashed, and each names the repository and commit its
+    bytes can be fetched from. The SQLite version is recorded because the
     baseline's tokenizer behaviour is a property of the build that ran it, and
     a lexical floor that moved between two machines must be visible here.
     When the run started, which harness commit produced it, the interpreter
@@ -86,10 +92,12 @@ def build_manifest(
         "corpus": {
             "path": portable_path(corpus_path),
             "sha256": sha256_file(corpus_path),
+            "source": file_source(corpus_path),
         },
         "questions": {
             "path": portable_path(questions_path),
             "sha256": sha256_file(questions_path),
+            "source": file_source(questions_path),
         },
         "started_at": started_at.isoformat(),
         "harness": harness_commit(),
