@@ -6,6 +6,15 @@ Closed work from `TODO.md`, newest first within each month.
 
 ### 2026-10
 
+- [x] 2026-10-11 **The README names the renames the frozen plans still
+  use.** A new "Names the plans still use" section maps `index_bytes` to
+  `persisted_bytes`, `recall_at_1` to the `recall_any_at_k` /
+  `recall_all_at_k` pair, and `answer_conversation_id` to
+  `answer_conversation_ids` (the singular key is still accepted on input, as
+  `membench/read_answer_labels.py` reads it). This closes both plan-drift
+  items, the `index_bytes` one and the four-plan `recall_at_1` one, without
+  editing the frozen plans. Evidence: `README.md`; `uv run codeality-py gate`
+  passed.
 - [x] 2026-10-11 **`reciprocal_rank`'s depth constraint is documented where a
   consumer reads it.** The field keeps its name (renaming it is a schema
   change no published number needed); the README's schema entry and the

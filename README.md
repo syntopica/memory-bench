@@ -307,6 +307,25 @@ recall to a system that answers every question with silence. Kept apart, a
 system that returns nothing on every question reports `0.0000` on every recall
 and `1.0000` on abstention, which is exactly what it did.
 
+## Names the plans still use
+
+The plans in `docs/superpowers/plans/` are frozen build records and were not
+revised as fields were renamed, so they name three things this harness no
+longer emits under those names:
+
+- `index_bytes` is now `persisted_bytes`, in the manifest's `ingest` block.
+  It was renamed because it never measured a derived index: it stats
+  everything the system persists, and FTS5 keeps a verbatim copy of the
+  corpus.
+- `recall_at_1` is gone. A question is labelled with every conversation that
+  answers it, so recall is published as the pair `recall_any_at_k` and
+  `recall_all_at_k`, at depths 1, 5 and 10. On a question with one labelled
+  conversation, `recall_any_at_1` and `recall_all_at_1` both equal what
+  `recall_at_1` measured; the pair is never averaged into one number.
+- `answer_conversation_id`, singular, is now `answer_conversation_ids` on a
+  question. A question file may still carry the singular key - a string, or
+  `null` for an unanswerable question - but not both keys on one record.
+
 ## Flags
 
 - `--adapter` (required): which system under test to run, by name.
