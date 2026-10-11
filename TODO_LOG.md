@@ -6,6 +6,19 @@ Closed work from `TODO.md`, newest first within each month.
 
 ### 2026-10
 
+- [x] 2026-10-11 **A normative specification with a citable revision.**
+  Decided 2026-10-11 (owner via Codex adjudication): the shipped adapter and
+  result contracts, scoring definitions, run requirements and disclosure rules
+  are normative; the specification has numbered revisions and every manifest
+  records its revision; design history and rationale stay separate.
+  `docs/spec/revision-1.md` states each rule with the code that implements it
+  and the test that verifies it (126 cited tests, every one checked to exist;
+  rules that bind the system under test or the publisher rather than the
+  harness say so). `membench/spec_revision.py` holds `SPEC_REVISION = 1`, and
+  manifest `1.2` writes it as `spec_revision`. Checking the rules found one
+  unverified claim, that Track R passes an unbounded budget, now covered by
+  `tests/test_track_r_token_budget.py`. Evidence: `uv run codeality-py gate`
+  passed; `test_the_cited_specification_revision_exists_in_the_repository`.
 - [x] 2026-10-11 **A re-run under `--force` clears the adapter's workspace.**
   Decided 2026-10-11 (owner via Codex adjudication): under `--force` the
   harness clears its dedicated adapter workspace before constructing the

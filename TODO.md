@@ -64,16 +64,6 @@ judged not to block it.
 
 ## Documentation
 
-- [ ] **No reader-facing specification with stable revisions to cite.** What a
-  result must satisfy, what is merely implemented, what is deferred and what is
-  unresolved policy are currently spread across a design record that is not
-  normative, a build plan that is historical, this file and the code. A
-  benchmark asking to be cited has to let a result name the revision that
-  governs it. Splitting the normative rules from the rationale, and giving the
-  rules citable revisions, is the work.
-
-  Needs owner (2026-10-11): which rules become normative, and the revision scheme a result cites.
-
 - [ ] **The published rationale is a build artifact, not a document written to
   be read.** The two-track argument, the saturation explanation, the untuned
   floor and the threshold-preregistration rule are all in

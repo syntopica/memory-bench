@@ -8,8 +8,8 @@ Status: approved to start, correcting in flight.
 > lexical floor is left untuned, why recall@k saturates on a small corpus — and
 > it is published so those choices can be attacked. It is not normative, it was
 > not revised as the code corrected it, and where it disagrees with the shipped
-> harness the harness is what ran. A reader-facing specification with stable
-> revisions to cite does not exist yet; `TODO.md` records that gap.
+> harness the harness is what ran. The normative specification a result cites
+> is `docs/spec/revision-1.md`.
 
 ## Purpose
 

@@ -4,6 +4,7 @@ from pathlib import Path
 
 from membench.build_manifest import MANIFEST_VERSION, build_manifest
 from membench.memory_adapter import ADAPTER_CONTRACT_VERSION
+from membench.spec_revision import SPEC_REVISION
 from membench.write_run import RAW_SCHEMA_VERSION
 
 FIXTURE_CORPUS = Path(__file__).resolve().parent.parent / "corpora" / "fixture" / "corpus.jsonl"
@@ -64,6 +65,7 @@ def test_the_manifest_records_the_versions_of_both_published_artifacts(tmp_path:
     assert manifest["raw_schema_version"] == RAW_SCHEMA_VERSION
     assert manifest["adapter_contract_version"] == ADAPTER_CONTRACT_VERSION
     assert manifest["manifest_version"] == MANIFEST_VERSION
+    assert manifest["spec_revision"] == SPEC_REVISION
 
 
 def test_the_manifest_records_the_sqlite_build_that_ran(tmp_path: Path):
@@ -140,3 +142,9 @@ def test_the_corpus_and_questions_name_their_source(tmp_path: Path):
     )
     assert manifest["corpus"]["source"] == {"repository": None, "commit": None}
     assert manifest["questions"]["source"] == {"repository": None, "commit": None}
+
+
+def test_the_cited_specification_revision_exists_in_the_repository():
+    spec = Path(__file__).resolve().parent.parent / "docs" / "spec" / f"revision-{SPEC_REVISION}.md"
+    assert spec.is_file()
+    assert f"Revision {SPEC_REVISION}" in spec.read_text(encoding="utf-8")

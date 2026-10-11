@@ -12,9 +12,10 @@ from membench.harness_commit import harness_commit
 from membench.memory_adapter import ADAPTER_CONTRACT_VERSION
 from membench.portable_path import portable_path
 from membench.sha256_file import sha256_file
+from membench.spec_revision import SPEC_REVISION
 from membench.write_run import RAW_SCHEMA_VERSION
 
-MANIFEST_VERSION = "1.1"
+MANIFEST_VERSION = "1.2"
 """Version of the manifest object below, written into every manifest.
 
 The manifest travels the way a raw row does: it is read by tools this
@@ -33,6 +34,9 @@ first shape that ships.
 1.1 adds a `source` object to `corpus` and to `questions`, naming the
 repository and commit a reader can fetch the hashed bytes from, so the digest
 verifies something obtainable. A 1.0 reader can ignore it.
+
+1.2 adds `spec_revision`, the revision of the normative specification the
+run was produced under. A 1.1 reader can ignore it.
 """
 
 
@@ -48,10 +52,12 @@ def build_manifest(
 ) -> dict[str, object]:
     """Return the manifest that pins a run's inputs and lets it be reproduced.
 
-    The manifest carries three version fields, and they answer different
-    questions: `manifest_version` is the shape of this object, `raw_schema_version`
-    the shape of one `raw.jsonl` row beside it, and `adapter_contract_version`
-    the contract the measured system implemented. A command line does not say
+    The manifest carries three version fields and one revision, and they
+    answer different questions: `manifest_version` is the shape of this
+    object, `raw_schema_version` the shape of one `raw.jsonl` row beside it,
+    `adapter_contract_version` the contract the measured system implemented,
+    and `spec_revision` the normative rules the run was produced and scored
+    under. A command line does not say
     which bytes were read, so the corpus and the
     question set are hashed, and each names the repository and commit its
     bytes can be fetched from. The SQLite version is recorded because the
@@ -86,6 +92,7 @@ def build_manifest(
         "manifest_version": MANIFEST_VERSION,
         "raw_schema_version": RAW_SCHEMA_VERSION,
         "adapter_contract_version": ADAPTER_CONTRACT_VERSION,
+        "spec_revision": SPEC_REVISION,
         "sqlite_version": sqlite3.sqlite_version,
         "adapter": adapter_name,
         "k": k,

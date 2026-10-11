@@ -11,7 +11,7 @@ max-file-lines = 150
 test-max-file-lines = 300
 
 [roles]
-data = ["membench/strata_vocabulary.py"]
+data = ["membench/strata_vocabulary.py", "membench/spec_revision.py"]
 registry = []
 entrypoint = ["membench/cli.py"]
 generated = []

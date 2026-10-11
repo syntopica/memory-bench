@@ -33,9 +33,11 @@ retrieval, and nothing more.
 `docs/superpowers/` holds the design record and the build plan that produced
 this. They are published so the reasoning behind every choice can be attacked,
 and they are historical: neither was revised as the code corrected it, and each
-carries a banner saying where it diverges. A specification with stable
-revisions for a result to cite does not exist yet.
+carries a banner saying where it diverges. The normative rules a result cites
+are in `docs/spec/revision-1.md`, and every manifest records the revision it
+was produced under as `spec_revision`.
 
+Specification: `docs/spec/revision-1.md`.
 Design record: `docs/superpowers/specs/2026-09-17-memory-bench-design.md`.
 Known limitations: `TODO.md`.
 
