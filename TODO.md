@@ -109,3 +109,5 @@ judged not to block it.
   k" in the schema and the field, which is honest for Track R; Track A will
   need the signal to name which cut fired, and that is a schema change to the
   row.
+
+## Security

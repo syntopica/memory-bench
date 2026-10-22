@@ -61,3 +61,7 @@ Closed work from `TODO.md`, newest first within each month.
   files in no repository. Evidence: `membench/enclosing_repository_root.py`,
   `tests/test_portable_path.py` (two new cases),
   `tests/test_enclosing_repository_root.py`; `uv run codeality-py gate` passed.
+
+- [x] 2026-10-22 — **Security:** **Security: update the locked certifi trust bundle.** The lockfile candidate updates only certifi from 2026.7.22 to the patched 2026.10.19 release for GHSA-6q48-6c7w-9gw2. Next: verify the exact locked candidate in an isolated environment and complete the required source gates. Installed instances require separate verification; source acceptance does not establish their runtime state.
+  - Result: Updated only the locked certifi record from 2026.7.22 to 2026.10.19 for GHSA-6q48-6c7w-9gw2. Installed consumers require separate adoption and verification.
+  - Evidence: Isolated uv lock --check passed; locked all-extras/all-groups wheel-only setup matched all 44 installed distributions. Direct pytest -q passed 241 tests; codeality-py gate --json passed all seven required stages, including the unchanged 80-percent coverage requirement and pip-audit. All 111 source bytes and executable modes remained unchanged; independent lock comparison confirmed no other package or metadata changes.
