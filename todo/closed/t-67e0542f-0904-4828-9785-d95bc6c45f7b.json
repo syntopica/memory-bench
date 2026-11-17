@@ -1,0 +1,23 @@
+{
+  "tadu": 2,
+  "id": "t-67e0542f-0904-4828-9785-d95bc6c45f7b",
+  "title": "2026-10-11 **`reciprocal_rank`'s depth constraint is documented where a",
+  "state": "done",
+  "category": "general",
+  "type": "untriaged",
+  "priority": "untriaged",
+  "notes": [
+    "consumer reads it.** The field keeps its name (renaming it is a schema",
+    "change no published number needed); the README's schema entry and the",
+    "`QuestionResult` docstring now say it is RR at `depth`, give the",
+    "eleventh-rank example, and tell a consumer concatenating runs to group by",
+    "`depth` before averaging. Evidence: `README.md`, `membench/question_result.py`;",
+    "`uv run codeality-py gate` passed, and",
+    "`test_the_fixture_headline_is_exactly_what_the_readme_publishes` still holds."
+  ],
+  "closed": "2026-11-17",
+  "result": "2026-10-11 **`reciprocal_rank`'s depth constraint is documented where a",
+  "evidence": [
+    "legacy item migrated to format 2 without a recorded evidence"
+  ]
+}

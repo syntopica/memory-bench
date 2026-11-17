@@ -1,0 +1,19 @@
+{
+  "tadu": 2,
+  "id": "t-f95d5f92-d012-4f5f-9dca-cdc6fc6de4ff",
+  "title": "`truncated` cannot say what cut the ranking",
+  "state": "pending",
+  "category": "measurement-deliberately-deferred",
+  "type": "untriaged",
+  "priority": "untriaged",
+  "notes": [
+    "It is",
+    "",
+    "`len(full_sources) > k`, so it signals the `k` cut alone. Under a binding",
+    "token budget an adapter drops hits from the end and the row still reports",
+    "`truncated: false`, which reads as a ranking that fit. Documented as \"cut at",
+    "k\" in the schema and the field, which is honest for Track R; Track A will",
+    "need the signal to name which cut fired, and that is a schema change to the",
+    "row."
+  ]
+}

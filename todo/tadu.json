@@ -1,0 +1,12 @@
+{
+  "tadu": 2,
+  "categories": {
+    "artifacts": "Artifacts",
+    "contract": "Contract",
+    "documentation": "Documentation",
+    "general": "General",
+    "measurement-deliberately-deferred": "Measurement, deliberately deferred",
+    "scoring": "Scoring",
+    "security": "Security"
+  }
+}

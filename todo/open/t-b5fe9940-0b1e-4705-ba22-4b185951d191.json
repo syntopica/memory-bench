@@ -1,0 +1,19 @@
+{
+  "tadu": 2,
+  "id": "t-b5fe9940-0b1e-4705-ba22-4b185951d191",
+  "title": "**`reciprocal_rank` reports the best-ranked label, and nothing reports",
+  "state": "pending",
+  "category": "scoring",
+  "type": "untriaged",
+  "priority": "untriaged",
+  "notes": [
+    "the worst.** The rule is published in the field's docstring, in `README.md`",
+    "and in the schema changelog, and it answers \"how quickly did the system",
+    "reach the answer\". It cannot answer \"how far must a reader go to hold the",
+    "whole answer\", which is the question a multi-hop result actually raises.",
+    "That is a new metric with its own name when it is wanted, never a",
+    "redefinition of this one.",
+    "",
+    "Decided 2026-10-11 (owner via Codex adjudication): wait. The worst-rank metric is deferred until a shipped multi-label corpus demonstrates its use, the best-rank `reciprocal_rank` definition stays, and any new metric is named separately."
+  ]
+}

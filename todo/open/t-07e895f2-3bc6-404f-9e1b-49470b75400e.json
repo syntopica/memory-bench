@@ -1,0 +1,17 @@
+{
+  "tadu": 2,
+  "id": "t-07e895f2-3bc6-404f-9e1b-49470b75400e",
+  "title": "`IngestReport` reports one storage number",
+  "state": "pending",
+  "category": "measurement-deliberately-deferred",
+  "type": "untriaged",
+  "priority": "untriaged",
+  "notes": [
+    "The spec requires",
+    "",
+    "derived-index bytes and total persistent state separately, with equivalent",
+    "boundaries across systems. Those boundaries cannot be defined honestly",
+    "against a single adapter; the definition needs a vector store and a graph",
+    "in hand."
+  ]
+}

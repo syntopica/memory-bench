@@ -1,0 +1,25 @@
+{
+  "tadu": 2,
+  "id": "t-abcb0cea-41a2-4c62-a7a4-c4586ee06b92",
+  "title": "2026-10-11 **`portable_path` no longer depends on the working",
+  "state": "done",
+  "category": "general",
+  "type": "untriaged",
+  "priority": "untriaged",
+  "notes": [
+    "directory.** A file inside a repository is now labelled relative to that",
+    "repository's root (the nearest ancestor holding a `.git` directory or file),",
+    "so `corpora/fixture/corpus.jsonl` keeps its label when a run is launched",
+    "from a subdirectory, and a corpus stored in its own repository outside the",
+    "tree is labelled from that repository's root instead of collapsing to a bare",
+    "`corpus.jsonl`. The working-directory and bare-name fallbacks remain for",
+    "files in no repository. Evidence: `membench/enclosing_repository_root.py`,",
+    "`tests/test_portable_path.py` (two new cases),",
+    "`tests/test_enclosing_repository_root.py`; `uv run codeality-py gate` passed."
+  ],
+  "closed": "2026-11-17",
+  "result": "2026-10-11 **`portable_path` no longer depends on the working",
+  "evidence": [
+    "legacy item migrated to format 2 without a recorded evidence"
+  ]
+}

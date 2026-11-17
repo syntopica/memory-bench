@@ -1,0 +1,21 @@
+{
+  "tadu": 2,
+  "id": "t-10295484-c219-47c3-9049-2bf2b32ef3c0",
+  "title": "Nothing verifies that an adapter honoured `token_budget`",
+  "state": "pending",
+  "category": "measurement-deliberately-deferred",
+  "type": "untriaged",
+  "priority": "untriaged",
+  "notes": [
+    "The",
+    "",
+    "comparability of Track A rests entirely on every system being charged the",
+    "same text budget, and no code path ever checks",
+    "`sum(count_tokens(hit.text) for hit in evidence)` against the budget that",
+    "was asked for. An adapter that ignores it, or that repacks its ranking to",
+    "fit more in, is indistinguishable from one that obeyed. Track R passes no",
+    "budget, so nothing published today depends on this; enforcement belongs with",
+    "the gateway and Track A work, which is the first thing that will pass a",
+    "binding budget."
+  ]
+}

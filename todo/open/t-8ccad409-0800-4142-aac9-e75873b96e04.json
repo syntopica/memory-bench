@@ -1,0 +1,19 @@
+{
+  "tadu": 2,
+  "id": "t-8ccad409-0800-4142-aac9-e75873b96e04",
+  "title": "**No shipped corpus exercises a multi-label or an unanswerable question",
+  "state": "pending",
+  "category": "scoring",
+  "type": "untriaged",
+  "priority": "untriaged",
+  "notes": [
+    "end to end.** `recall_all_*` and the abstention line are covered by unit",
+    "tests and by a CLI test that writes its own question file, but",
+    "`corpora/fixture/questions.jsonl` carries six single-label answerable",
+    "questions, so the paths a real corpus will take through the CLI are proved",
+    "only by tests that construct them. Adding either to the fixture would move",
+    "its published headline, which is deliberately pinned, so the fix belongs",
+    "with LongMemEval-S or Corpus A: the first corpus carrying both must assert",
+    "its own counts rather than inherit this one's confidence."
+  ]
+}

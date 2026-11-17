@@ -1,0 +1,20 @@
+{
+  "tadu": 2,
+  "id": "t-c75d14e4-6acb-4224-a5e7-c38303c13c8d",
+  "title": "There is no mechanism for registering a foreign adapter",
+  "state": "pending",
+  "category": "contract",
+  "type": "untriaged",
+  "priority": "untriaged",
+  "notes": [
+    "The harness",
+    "",
+    "builds systems under test from `ADAPTERS`, a hard-coded dict in",
+    "`membench/build_adapter.py`, so a third party reaches the harness only by",
+    "forking or patching that file. This is deferred rather than overlooked: what",
+    "the mechanism should be — an entry point, a dotted-path flag, a manifest",
+    "field — determines what the manifest can record about an adapter's identity,",
+    "and that is worth deciding with two real adapters in hand rather than one.",
+    "The README says plainly that this is the state today."
+  ]
+}

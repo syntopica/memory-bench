@@ -1,0 +1,21 @@
+{
+  "tadu": 2,
+  "id": "t-a0b26bc0-4b2c-4bf8-9964-5bc23639b45b",
+  "title": "**The published rationale is a build artifact, not a document written to",
+  "state": "pending",
+  "category": "documentation",
+  "type": "untriaged",
+  "priority": "untriaged",
+  "notes": [
+    "be read.** The two-track argument, the saturation explanation, the untuned",
+    "floor and the threshold-preregistration rule are all in",
+    "`docs/superpowers/specs/`, addressed to the agent that implemented them.",
+    "Restating them for a maintainer of a system being measured is what makes the",
+    "fairness assumptions inspectable — and that restatement must carry the",
+    "inconvenient parts forward, including this benchmark's origin as a comparison",
+    "against its author's own system, or the reframing becomes reputation",
+    "management.",
+    "",
+    "Decided 2026-10-11 (owner): draft kept, not published."
+  ]
+}
