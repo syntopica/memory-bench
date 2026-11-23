@@ -1,11 +1,12 @@
 {
   "tadu": 2,
   "id": "t-f95d5f92-d012-4f5f-9dca-cdc6fc6de4ff",
-  "title": "`truncated` cannot say what cut the ranking",
+  "title": "Track A: make QuestionResult.truncated (or a new field) say which cut fired, k or token budget",
   "state": "pending",
   "category": "measurement-deliberately-deferred",
-  "type": "untriaged",
-  "priority": "untriaged",
+  "type": "feature",
+  "priority": "low",
+  "kind": "later",
   "notes": [
     "It is",
     "",
@@ -14,6 +15,7 @@
     "`truncated: false`, which reads as a ranking that fit. Documented as \"cut at",
     "k\" in the schema and the field, which is honest for Track R; Track A will",
     "need the signal to name which cut fired, and that is a schema change to the",
-    "row."
+    "row.",
+    "2026-11-24 audit: still true. membench/run_track_r.py:76 sets truncated=len(full_sources) > k; membench/question_result.py:33-39 documents the limit and says Track A needs a signal naming which cut fired. Track A (token budget) is not implemented yet (README line 14 describes it as future). Left: when Track A lands, add a row-schema change (e.g. cut_by: k|budget|none) and bump schema_version. Next step: none until Track A starts."
   ]
 }

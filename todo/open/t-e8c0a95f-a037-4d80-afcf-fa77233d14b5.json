@@ -1,11 +1,12 @@
 {
   "tadu": 2,
   "id": "t-e8c0a95f-a037-4d80-afcf-fa77233d14b5",
-  "title": "The manifest still cannot reproduce a run on its own",
-  "state": "in_progress",
+  "title": "Manifest cannot reproduce a run: add adapter identity (with 2nd adapter), image digest, prompts and model ids (with gateway)",
+  "state": "pending",
   "category": "artifacts",
-  "type": "untriaged",
-  "priority": "untriaged",
+  "type": "feature",
+  "priority": "low",
+  "kind": "later",
   "notes": [
     "It records",
     "",
@@ -29,6 +30,7 @@
     "registered name - deferred by that decision until the second adapter is",
     "built. There is no image or container digest. And the prompts issued and the",
     "models requested and resolved are still absent, which arrive with the model",
-    "gateway."
+    "gateway.",
+    "2026-11-24 audit: verified partial. membench/build_manifest.py records start time, harness commit, python/platform, dependency_lock, adapter_options, adapter name and contract version; manifest 1.1 source fields in membench/file_source.py. Still missing: adapter identity beyond name (only membench/adapters/baseline_fts5_adapter.py exists, so deferred by 2026-10-11 decision until a 2nd adapter), image/container digest, prompts and model ids (no gateway code in repo). Next: nothing until a 2nd adapter or model gateway lands; then add identity field (package version/commit + config digest)."
   ]
 }

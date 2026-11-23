@@ -1,11 +1,12 @@
 {
   "tadu": 2,
   "id": "t-10295484-c219-47c3-9049-2bf2b32ef3c0",
-  "title": "Nothing verifies that an adapter honoured `token_budget`",
+  "title": "Add a runner-side check that each adapter honoured token_budget (needed before Track A)",
   "state": "pending",
   "category": "measurement-deliberately-deferred",
-  "type": "untriaged",
-  "priority": "untriaged",
+  "type": "test",
+  "priority": "low",
+  "kind": "later",
   "notes": [
     "The",
     "",
@@ -16,6 +17,7 @@
     "fit more in, is indistinguishable from one that obeyed. Track R passes no",
     "budget, so nothing published today depends on this; enforcement belongs with",
     "the gateway and Track A work, which is the first thing that will pass a",
-    "binding budget."
+    "binding budget.",
+    "2026-11-24 audit: still not done. Only tests/test_baseline_fts5.py:131 checks the FTS5 baseline own output against count_tokens; no runner/harness code checks any adapter result against the requested budget, and Track R passes token_budget=None (docs/spec/revision-1.md A6). No Track A runner exists yet. Left: add a check in the run path that sum(count_tokens(h.text)) <= token_budget when budget is set, flag violations; do it with the first Track A work. Evidence: grep token_budget in membench/ and tests/."
   ]
 }

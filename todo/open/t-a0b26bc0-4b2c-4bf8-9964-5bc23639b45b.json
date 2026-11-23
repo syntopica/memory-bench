@@ -1,11 +1,12 @@
 {
   "tadu": 2,
   "id": "t-a0b26bc0-4b2c-4bf8-9964-5bc23639b45b",
-  "title": "**The published rationale is a build artifact, not a document written to",
+  "title": "Write a reader-facing rationale for memory-bench maintainers, including the benchmark origin against its author own system",
   "state": "pending",
   "category": "documentation",
-  "type": "untriaged",
-  "priority": "untriaged",
+  "type": "docs",
+  "priority": "low",
+  "kind": "decision",
   "notes": [
     "be read.** The two-track argument, the saturation explanation, the untuned",
     "floor and the threshold-preregistration rule are all in",
@@ -16,6 +17,7 @@
     "against its author's own system, or the reframing becomes reputation",
     "management.",
     "",
-    "Decided 2026-10-11 (owner): draft kept, not published."
+    "Decided 2026-10-11 (owner): draft kept, not published.",
+    "2026-11-24 audit: owner decided 2026-10-11 the draft is kept, not published. docs/spec/revision-1.md (normative rules, D4 saturation, D5 untuned floor) and README cover part of the rationale, but no file states the benchmark origin as a comparison against the author own system (grep for author/atrium/own system finds nothing relevant); two-track argument still only in docs/superpowers/specs/. Left: owner decides whether to publish a maintainer-facing rationale that carries the origin disclosure; if yes, write it in docs/. No work now."
   ]
 }

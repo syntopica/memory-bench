@@ -1,11 +1,12 @@
 {
   "tadu": 2,
   "id": "t-8ccad409-0800-4142-aac9-e75873b96e04",
-  "title": "**No shipped corpus exercises a multi-label or an unanswerable question",
+  "title": "Add a corpus (LongMemEval-S or Corpus A) with multi-label and unanswerable questions and assert its own counts end to end",
   "state": "pending",
   "category": "scoring",
-  "type": "untriaged",
-  "priority": "untriaged",
+  "type": "test",
+  "priority": "low",
+  "kind": "task",
   "notes": [
     "end to end.** `recall_all_*` and the abstention line are covered by unit",
     "tests and by a CLI test that writes its own question file, but",
@@ -14,6 +15,7 @@
     "only by tests that construct them. Adding either to the fixture would move",
     "its published headline, which is deliberately pinned, so the fix belongs",
     "with LongMemEval-S or Corpus A: the first corpus carrying both must assert",
-    "its own counts rather than inherit this one's confidence."
+    "its own counts rather than inherit this one's confidence.",
+    "2026-11-24 audit: still not done. corpora/ holds only fixture (6 single-label answerable questions in questions.jsonl); no LongMemEval-S or Corpus A corpus committed; git log -- corpora shows only fixture commits. recall_all_at_k.py and abstention_verdict.py exist, unit-tested only. Left: when the first real corpus lands, include multi-label and unanswerable questions and assert its counts in a CLI-level test. Do not alter the fixture (pinned headline)."
   ]
 }

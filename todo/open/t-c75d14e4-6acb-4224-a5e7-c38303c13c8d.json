@@ -1,11 +1,12 @@
 {
   "tadu": 2,
   "id": "t-c75d14e4-6acb-4224-a5e7-c38303c13c8d",
-  "title": "There is no mechanism for registering a foreign adapter",
+  "title": "Decide and build a foreign-adapter registration mechanism (entry point, dotted-path flag or manifest field) once a second real adapter exists",
   "state": "pending",
   "category": "contract",
-  "type": "untriaged",
-  "priority": "untriaged",
+  "type": "feature",
+  "priority": "low",
+  "kind": "decision",
   "notes": [
     "The harness",
     "",
@@ -15,6 +16,7 @@
     "the mechanism should be — an entry point, a dotted-path flag, a manifest",
     "field — determines what the manifest can record about an adapter's identity,",
     "and that is worth deciding with two real adapters in hand rather than one.",
-    "The README says plainly that this is the state today."
+    "The README says plainly that this is the state today.",
+    "2026-11-24 audit: still not done. ADAPTERS in membench/build_adapter.py:9 is still a one-entry hard-coded dict (baseline_fts5) and cli.py:67 validates against it; no entry-point or dotted-path option in pyproject.toml or cli.py; README L91-95 still documents it as deferred. Left: owner decision on mechanism once a second adapter exists, then implement. Next: add a second adapter, then pick mechanism."
   ]
 }

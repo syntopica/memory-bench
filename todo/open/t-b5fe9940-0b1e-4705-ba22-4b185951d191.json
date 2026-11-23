@@ -1,11 +1,12 @@
 {
   "tadu": 2,
   "id": "t-b5fe9940-0b1e-4705-ba22-4b185951d191",
-  "title": "**`reciprocal_rank` reports the best-ranked label, and nothing reports",
+  "title": "Add a separately named worst-rank metric once a multi-label corpus ships; reciprocal_rank stays best-rank",
   "state": "pending",
   "category": "scoring",
-  "type": "untriaged",
-  "priority": "untriaged",
+  "type": "feature",
+  "priority": "low",
+  "kind": "later",
   "notes": [
     "the worst.** The rule is published in the field's docstring, in `README.md`",
     "and in the schema changelog, and it answers \"how quickly did the system",
@@ -14,6 +15,7 @@
     "That is a new metric with its own name when it is wanted, never a",
     "redefinition of this one.",
     "",
-    "Decided 2026-10-11 (owner via Codex adjudication): wait. The worst-rank metric is deferred until a shipped multi-label corpus demonstrates its use, the best-rank `reciprocal_rank` definition stays, and any new metric is named separately."
+    "Decided 2026-10-11 (owner via Codex adjudication): wait. The worst-rank metric is deferred until a shipped multi-label corpus demonstrates its use, the best-rank `reciprocal_rank` definition stays, and any new metric is named separately.",
+    "2026-11-24 audit: Deferred per the 2026-10-11 owner decision. Best-rank rule is documented in membench/reciprocal_rank.py, membench/write_run.py, membench/question_result.py, README.md:236 and docs/spec/revision-1.md:214. No worst-rank metric exists and corpora/ holds only a fixture, so the trigger has not occurred. Next step: none until a multi-label corpus ships."
   ]
 }

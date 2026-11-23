@@ -1,17 +1,19 @@
 {
   "tadu": 2,
   "id": "t-07e895f2-3bc6-404f-9e1b-49470b75400e",
-  "title": "`IngestReport` reports one storage number",
+  "title": "Split IngestReport.persisted_bytes into derived-index bytes and total persistent state once a second adapter (vector store or graph) exists",
   "state": "pending",
   "category": "measurement-deliberately-deferred",
-  "type": "untriaged",
-  "priority": "untriaged",
+  "type": "feature",
+  "priority": "low",
+  "kind": "later",
   "notes": [
     "The spec requires",
     "",
     "derived-index bytes and total persistent state separately, with equivalent",
     "boundaries across systems. Those boundaries cannot be defined honestly",
     "against a single adapter; the definition needs a vector store and a graph",
-    "in hand."
+    "in hand.",
+    "2026-11-24 audit: still not done and correctly deferred. membench/ingest_report.py has only persisted_bytes (docstring says it is not derived-index size, FTS5 keeps a verbatim copy); only adapter is membench/adapters/baseline_fts5_adapter.py; manifest ingest block (docs/spec/revision-1.md W3) carries persisted_bytes. Left: define equivalent derived vs total boundaries once a vector-store or graph adapter exists, then add the two fields. Smallest next step: none until a second adapter lands."
   ]
 }
